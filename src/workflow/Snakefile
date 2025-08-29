@@ -9,9 +9,9 @@ rule all:
     input:
         # qc
         "multiqc",
-        "qc/panel-qc-summary.xlsx",
+        "qc-summary/panel-qc-summary.xlsx",
         # variants
-        "variant/vars.xlsx",
+        "variant/all-vars-summary.tsv",
 
 
 include: "rules/bed.smk"

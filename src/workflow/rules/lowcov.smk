@@ -10,7 +10,7 @@ rule bedtools_genomecov:
     params:
         "-bga",  # optional parameters
     conda:
-        config["conda"]["basic2"]
+        config["conda"]["bedtools"]
     wrapper:
         f"file:{workflow.basedir}/wrappers/bedtools/genomecov"
 
@@ -44,7 +44,7 @@ rule bedtools_merge:
     benchmark:
         ".log/lowcov/{sample}.bedtools_merge.bm"
     conda:
-        config["conda"]["basic2"]
+        config["conda"]["bedtools"]
     wrapper:
         f"file:{workflow.basedir}/wrappers/bedtools/merge"
 
@@ -75,7 +75,7 @@ rule bedtools_maskfasta:
     benchmark:
         ".log/lowcov/{sample}.bedtools_maskfasta.bm"
     conda:
-        config["conda"]["basic2"]
+        config["conda"]["bedtools"]
     shell:
         "bedtools maskfasta -fi {input.fa} -bed {input.bed} -fo {output} 2> {log}"
 
@@ -90,7 +90,7 @@ rule samtools_faidx:
     benchmark:
         ".log/lowcov/{sample}.samtools_faidx.bm"
     conda:
-        config["conda"]["basic"]
+        config["conda"]["samtools"]
     params:
         extra="",
     wrapper:

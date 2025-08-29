@@ -8,6 +8,6 @@ rule bedtools_sort:
     benchmark:
         ".log/prepare/bedtools_sort.bm"
     conda:
-        config["conda"]["basic2"]
+        config["conda"]["bedtools"]
     wrapper:
         f"file:{workflow.basedir}/wrappers/bedtools/sort"

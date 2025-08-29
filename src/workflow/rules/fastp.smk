@@ -13,7 +13,7 @@ rule fastp:
     benchmark:
         ".log/fastp/{sample}.fastp.bm"
     conda:
-        config["conda"]["basic2"]
+        config["conda"]["fastp"]
     threads: config["threads"]["low"]
     params:
         # ! 用浩博的参数

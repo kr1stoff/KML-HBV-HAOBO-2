@@ -9,7 +9,7 @@ rule fastqc:
     log:
         ".log/fastqc/{sample}.log",
     conda:
-        config["conda"]["basic"]
+        config["conda"]["fastqc"]
     threads: config["threads"]["low"]
     shell:
         "mkdir {output} && fastqc {input} -o {output} -t {threads} --extract &> {log}"
@@ -25,6 +25,6 @@ rule multiqc:
     log:
         ".log/multiqc/multiqc.log",
     conda:
-        config["conda"]["basic"]
+        config["conda"]["multiqc"]
     shell:
         "multiqc {input} --outdir {output} 2> {log}"

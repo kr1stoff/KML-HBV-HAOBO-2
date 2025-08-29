@@ -9,7 +9,7 @@ rule bwa_mem:
     log:
         ".log/align/{sample}.bwa_mem.log",
     conda:
-        config["conda"]["basic"]
+        config["conda"]["bwa"]
     params:
         extra=r"-M -Y -R '@RG\tID:{sample}\tSM:{sample}\tPL:ILLUMINA'",
         sorting="samtools",  # Can be 'none', 'samtools' or 'picard'.
@@ -34,7 +34,7 @@ rule samtools_index:
         extra="",  # optional params string
     threads: config["threads"]["low"]  # This value - 1 will be sent to -@
     conda:
-        config["conda"]["basic"]
+        config["conda"]["samtools"]
     wrapper:
         f"file:{workflow.basedir}/wrappers/samtools/index"
 
@@ -50,7 +50,7 @@ rule samtools_stats:
     log:
         ".log/align/{sample}.samtools_stats.log",
     conda:
-        config["conda"]["basic"]
+        config["conda"]["samtools"]
     threads: config["threads"]["low"]
     wrapper:
         f"file:{workflow.basedir}/wrappers/samtools/stats"
@@ -80,7 +80,7 @@ rule samtools_depth:
     log:
         ".log/align/{sample}.samtools_depth.log",
     conda:
-        config["conda"]["basic"]
+        config["conda"]["samtools"]
     params:
         # optional bed file passed to -b
         extra="",  # optional additional parameters as string
@@ -132,6 +132,6 @@ rule samtools_bedcov:
     log:
         ".log/align/{sample}.samtools_bedcov.log",
     conda:
-        config["conda"]["basic"]
+        config["conda"]["samtools"]
     shell:
         "samtools bedcov -c {input[1]} {input[0]} > {output} 2> {log}"
