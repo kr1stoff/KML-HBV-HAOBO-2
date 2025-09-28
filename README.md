@@ -28,6 +28,7 @@
 
         # basic 同样
         # basic2 同样
+        # 还有 snakemake 环境，版本 2.3.0
         ```
 
 2. 放置软件及数据库  
@@ -43,6 +44,7 @@
       ```
 
     - 数据库
+      需要提前使用 bwa, samtools 建立索引
 
       ```bash
       mkdir -p /data/kml/database/
