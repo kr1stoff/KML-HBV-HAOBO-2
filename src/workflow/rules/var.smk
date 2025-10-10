@@ -11,13 +11,15 @@ rule freebayes:
         ".log/variant/{sample}.freebayes.log",
     benchmark:
         ".log/variant/{sample}.freebayes.bm"
+    # * 用 thread 控制 freebayes 的并行数量，见效内存压力
+    threads:
+        config["custom"]["freebayes_threads"]
     params:
         (
             "--ploidy 1 --min-repeat-size 10 --read-indel-limit 15 --use-best-n-alleles 4 "
             "--theta 0.001 --haplotype-length 0 --min-alternate-fraction 0.001 --min-base-quality 30 "
             "--min-coverage 20 --min-alternate-count 2 --min-mapping-quality 30 --max-complex-gap 1 --trim-complex-tail "
         ),
-    threads: config["threads"]["low"]
     conda:
         config["conda"]["freebayes"]
     shell:
