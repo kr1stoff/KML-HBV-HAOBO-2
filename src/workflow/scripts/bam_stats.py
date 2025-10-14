@@ -26,6 +26,7 @@ mapped_rate = mapped_reads / raw_total_sequences if raw_total_sequences > 0 else
 # 在靶率 (target) reads mapped and paired / (all) reads mapped and paired
 ontarget_reads = int(target_stats['reads mapped and paired'])
 ontarget_rate = ontarget_reads / mapped_reads if mapped_reads > 0 else 0
+
 # 覆盖率
 # ! 阴控或其他没有比对到参考的样本会报错
 target_depth_file = Path(snakemake.input[2])
@@ -44,17 +45,22 @@ if target_depth_file.stat().st_size != 0:
     mean_depth = int(target_depth[2].mean())
     depth_20_rate = target_depth[target_depth[2] > mean_depth * 0.2].shape[0] / target_size
     depth_50_rate = target_depth[target_depth[2] > mean_depth * 0.5].shape[0] / target_size
+    # [20251013] 新增均一性 P90/P10 数值
+    depth_p90 = int(target_depth[2].quantile(0.9))
+    depth_p10 = int(target_depth[2].quantile(0.1))
+    p90_div_p10 = depth_p90 / depth_p10
 else:
     target_size, target_covered_size, covarage_rate = 0, 0, 0
     cover4x_rate, cover10x_rate, cover30x_rate, cover100x_rate, cover200x_rate = 0, 0, 0, 0, 0
-    mean_depth, depth_20_rate, depth_50_rate = 0, 0, 0
-# * 输出
+    mean_depth, depth_20_rate, depth_50_rate, p90_div_p10 = 0, 0, 0, 0
+
+# 输出
 outputs = [mapped_reads, mapped_rate, ontarget_reads, ontarget_rate, target_size, target_covered_size, covarage_rate,
            cover4x_rate, cover10x_rate, cover30x_rate, cover100x_rate, cover200x_rate,
-           mean_depth, depth_20_rate, depth_50_rate]
-outputs = [o if type(o) == int else round(o, 4) for o in outputs]
+           mean_depth, depth_20_rate, depth_50_rate, p90_div_p10]
+outputs = [o if type(o) == int else round(o, 6) for o in outputs]
 df = pd.DataFrame([outputs], columns=[
     'MappedReads', 'MappedRate', 'OnTargetReads', 'OnTargetRate', 'TargetSize', 'TargetCoveredSize', 'CoverageRate',
     '4xCoverageRate', '10xCoverageRate', '30xCoverageRate', '100xCoverageRate', '200xCoverageRate',
-    'MeanDepth', '20%MeanDepthRate', '50%MeanDepthRate'])
+    'MeanDepth', '20%MeanDepthCoverageRate', '50%MeanDepthCoverageRate', 'P90/P10'])
 df.to_csv(snakemake.output[0], index=False)

@@ -7,11 +7,10 @@ shell.prefix("set +eu;")
 
 rule all:
     input:
-        # qc
         "multiqc",
         "qc-summary/panel-qc-summary.xlsx",
-        # variants
         "variant/all-vars-summary.tsv",
+        # todo test
 
 
 include: "rules/bed.smk"

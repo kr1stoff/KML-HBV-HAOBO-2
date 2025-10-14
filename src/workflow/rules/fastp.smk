@@ -16,18 +16,42 @@ rule fastp:
         config["conda"]["fastp"]
     threads: config["threads"]["low"]
     params:
-        # ! 用浩博的参数
+        # * [20251013] 浩博 (ChatGPT) 建议的参数
         extra=(
-            "--trim_poly_g --qualified_quality_phred 5 --unqualified_percent_limit 50 --n_base_limit 15 "
-            "--length_required 150 --overlap_diff_limit 10 --overlap_diff_percent_limit 10"
+            "--cut_front --cut_tail --cut_mean_quality 20 --qualified_quality_phred 20 "
+            "--length_required 75 --detect_adapter_for_pe --trim_poly_g"
         ),
+    wrapper:
+        f"file:{workflow.basedir}/wrappers/fastp"
+
+
+rule cleaned_fastp:
+    input:
+        sample=[
+            "fastp/{sample}.1.fastq.gz",
+            "fastp/{sample}.2.fastq.gz",
+        ]
+    output:
+        trimmed=[temp("fastp/{sample}.trimmed.1.fastq.gz"), temp("fastp/{sample}.trimmed.2.fastq.gz")],
+        html=temp("fastp/{sample}.trimmed.html"),
+        json="fastp/{sample}.trimmed.json",
+    log:
+        ".log/fastp/{sample}.cleaned_fastp.log",
+    benchmark:
+        ".log/fastp/{sample}.cleaned_fastp.bm"
+    conda:
+        config["conda"]["fastp"]
+    threads: config["threads"]["low"]
+    params:
+        extra=""
     wrapper:
         f"file:{workflow.basedir}/wrappers/fastp"
 
 
 rule fq_stats_summary:
     input:
-        expand("fastp/{sample}.json", sample=config["samples"]),
+        fastp_json=expand("fastp/{sample}.json", sample=config["samples"]),
+        cleaned_json=expand("fastp/{sample}.trimmed.json", sample=config["samples"]),
     output:
         "fastp/fq_summary.tsv",
     benchmark:

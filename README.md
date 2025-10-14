@@ -22,7 +22,16 @@
 
 ## 更新
 
-- [20251010] 新增 freebayes 线程数参数, 默认为 0, 表示和线程数相同
+- [20251013] 根据浩博的修改意见修改流程和参数
+  - 修改 fastp 参数 --cut_front --cut_tail --cut_mean_quality 20 --qualified_quality_phred 20 --length_required 75 --detect_adapter_for_pe --trim_poly_g
+  - 新增 fastp 接头残留计算
+  - 新增比对质控均一性 P90/P10 数值
+  - 靶区域从 1300-1800bp 调整至 70-1730bp (排除引物+flank区域70bp)
+  - 修改 freebayes 参数 --pooled-continuous --min-repeat-size 10 --read-indel-limit 15 --use-best-n-alleles 4 --theta 0.005 --haplotype-length 0 --min-alternate-fraction 0.005 --min-base-quality 30 --min-coverage 1000 --min-alternate-count 10 --min-mapping-quality 30 --max-complex-gap 1 --trim-complex-tail
+  - 加入错误模型过滤 深度,最小等位基因深度,变异质量,变异频率,链偏好,位置偏好
+
+- [20251010]
+  - 新增 freebayes 线程数参数, 默认为 0, 表示和线程数相同
 
 ## 注意
 
