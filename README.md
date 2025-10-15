@@ -2,8 +2,16 @@
 
 ## 分析
 
+- 主流程
+
   ```bash
   /home/mengxf/miniforge3/envs/python3.12/bin/python -m src.kml_hbv_haobo_2 --input-tab /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/input.hbv.tsv --output-dir /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/results/250829 --threads 32
+  ```
+
+- 获取参考低复杂区域
+
+  ```bash
+  /home/mengxf/miniforge3/envs/python3.12/bin/python -m src.util.tantan_lcr_extractor --input-fasta /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/HAOBO-250829.fasta --output-bed /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/low_cpx_region.bed --min-len 6
   ```
 
 ## 同步结果
@@ -28,7 +36,7 @@
   - 新增比对质控均一性 P90/P10 数值
   - 靶区域从 1300-1800bp 调整至 70-1730bp (排除引物+flank区域70bp)
   - 修改 freebayes 参数 --pooled-continuous --min-repeat-size 10 --read-indel-limit 15 --use-best-n-alleles 4 --theta 0.005 --haplotype-length 0 --min-alternate-fraction 0.005 --min-base-quality 30 --min-coverage 1000 --min-alternate-count 10 --min-mapping-quality 30 --max-complex-gap 1 --trim-complex-tail
-  - 加入错误模型过滤 深度,最小等位基因深度,变异质量,变异频率,链偏好,位置偏好
+  - 加入错误模型过滤 深度,最小等位基因深度,变异频率,链偏好,位置偏好
 
 - [20251010]
   - 新增 freebayes 线程数参数, 默认为 0, 表示和线程数相同

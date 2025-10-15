@@ -9,4 +9,5 @@ CONDA_ENV_DICT = {
     'fastp': 'basic2',
     'freebayes': 'basic2',
     'csvtk': 'basic',
+    'bcftools': 'basic',
 }

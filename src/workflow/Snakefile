@@ -10,7 +10,6 @@ rule all:
         "multiqc",
         "qc-summary/panel-qc-summary.xlsx",
         "variant/all-vars-summary.tsv",
-        # todo test
 
 
 include: "rules/bed.smk"

@@ -26,22 +26,58 @@ rule freebayes:
     shell:
         "freebayes {params} --targets {input.targets} --fasta-reference {input.ref} {input.alns} > {output.vcf} 2> {log}"
 
+# Description: 变异过滤(错误模型)第一步
+#              1. 低质量: 深度 < 1000X, 等位基因深度 < 10X
+#              2. 低于检测限: 最小等位基因频率 < 1%
+#              3. 链偏倚: 正链/负链支持的 reads 数量 < 2, 正链/负链支持的 reads < 该变异总 reads 的 10%
+#              4. 位置偏倚: 变异位置左侧/右侧支持的测序深度 < 2, 变异位置左侧/右侧支持的测序深度 < 该变异总深度的 10%
+# Date: 20251015
+rule filter_variant1:
+    input:
+        rules.freebayes.output,
+    output:
+        "variant/{sample}.filter1.vcf",
+    log:
+        ".log/variant/{sample}.filter_variant1.log",
+    benchmark:
+        ".log/variant/{sample}.filter_variant1.bm"
+    conda:
+        config["conda"]["bcftools"]
+    shell:
+        """
+        bcftools filter --soft-filter LowQual --exclude 'INFO/DP < 1000 || INFO/AO < 10' {input} | \
+        bcftools filter --mode + --soft-filter BelowLOD --exclude 'INFO/AO / INFO/DP < 0.01' | \
+        bcftools filter --mode + --soft-filter StrandBias --exclude 'SAF < 2 || SAR < 2' | \
+        bcftools filter --mode + --soft-filter StrandBias --exclude '(SAF + SAR) > 0 && SAF / (SAF + SAR) < 0.1' | \
+        bcftools filter --mode + --soft-filter StrandBias --exclude '(SAF + SAR) > 0 && SAR / (SAF + SAR) < 0.1' | \
+        bcftools filter --mode + --soft-filter PosBias --exclude 'RPL < 2 || RPR < 2' | \
+        bcftools filter --mode + --soft-filter PosBias --exclude '(RPL + RPR) < 2 || RPL / (RPL + RPR) < 0.1' | \
+        bcftools filter --mode + --soft-filter PosBias --exclude '(RPL + RPR) < 2 || RPR / (RPL + RPR) < 0.1' > {output}
+        """
 
-# todo 变异过滤(错误模型)
-# /home/mengxf/miniforge3/envs/basic/bin/bcftools filter -s LowQual -e 'INFO/DP < 1000 || INFO/AO < 10 || QUAL < 20' variant/AB39-1.vcf | \
-# /home/mengxf/miniforge3/envs/basic/bin/bcftools filter -m + -s BelowLOD -e 'INFO/AO / INFO/DP < 0.01' | \
-# /home/mengxf/miniforge3/envs/basic/bin/bcftools filter -m + -s StrandBias -e 'SAF < 2 || SAR < 2' | \
-# /home/mengxf/miniforge3/envs/basic/bin/bcftools filter -m + -s StrandBias -e '(SAF + SAR) > 0 && SAF / (SAF + SAR) < 0.1' | \
-# /home/mengxf/miniforge3/envs/basic/bin/bcftools filter -m + -s StrandBias -e '(SAF + SAR) > 0 && SAR / (SAF + SAR) < 0.1' | \
-# /home/mengxf/miniforge3/envs/basic/bin/bcftools filter -m + -s PosBias -e 'RPL < 2 || RPR < 2' | \
-# /home/mengxf/miniforge3/envs/basic/bin/bcftools filter -m + -s PosBias -e '(RPL + RPR) < 2 || RPL / (RPL + RPR) < 0.1' | \
-# /home/mengxf/miniforge3/envs/basic/bin/bcftools filter -m + -s PosBias -e '(RPL + RPR) < 2 || RPR / (RPL + RPR) < 0.1' | \
-# grep -v '#' | cut -f -7 | column -t
+
+# Description: 变异过滤(错误模型)第二步
+#              预先注释好基因组低复杂度 BED 区域, 然后用 soft-filter 方式添加上 LowComplexity 标签
+# Date: 20251015
+rule filter_variant2:
+    input:
+        rules.filter_variant1.output,
+        config["database"]["low_cpx"]
+    output:
+        "variant/{sample}.filter.vcf",
+    log:
+        ".log/variant/{sample}.filter_variant2.log",
+    benchmark:
+        ".log/variant/{sample}.filter_variant2.bm"
+    conda:
+        config["conda"]["python"]
+    script:
+        "../scripts/vcf_low_lcr.py"
 
 
 rule vcf2tab:
     input:
-        rules.freebayes.output,
+        rules.filter_variant2.output,
     output:
         "variant/{sample}.tsv",
     log:
