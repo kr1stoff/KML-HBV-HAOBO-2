@@ -25,7 +25,7 @@ rule bedtools_genomecov_filter:
     benchmark:
         ".log/lowcov/{sample}.bedtools_genomecov_filter.bm"
     params:
-        depth_threshold=20,
+        depth_threshold=1000,
     shell:
         "awk '$4<{params.depth_threshold}' {input} > {output} 2> {log}"
 
@@ -37,7 +37,7 @@ rule bedtools_merge:
     output:
         temp("lowcov/{sample}.lowcovmask.raw.bed"),
     params:
-        ## Add optional parameters 
+        ## Add optional parameters
         extra="",  ## In this example, we want to count how many input lines we merged per output line
     log:
         ".log/lowcov/{sample}.bedtools_merge.log",

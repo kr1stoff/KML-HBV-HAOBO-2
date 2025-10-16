@@ -20,7 +20,7 @@ for cj_path in snakemake.input['cleaned_json']:
     cj_data = json.loads(open(cj_path, "r").read())
     residual = int(cj_data['adapter_cutting']['adapter_trimmed_reads'])
     all_reads = int(cj_data["summary"]["before_filtering"]["total_reads"])
-    residual_rate = round(residual / all_reads, 6)
+    residual_rate = round(residual / all_reads, 6) if all_reads > 0 else 0
     residual_dict[sample] = residual_rate
 
 for js_path in snakemake.input['fastp_json']:

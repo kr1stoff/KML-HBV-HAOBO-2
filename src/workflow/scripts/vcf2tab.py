@@ -17,26 +17,31 @@ for row in reader:
     ref = row["REF"]
     alt = row["ALT"]
     info = row["INFO"]
-    fltr =  row["FILTER"]
+    fltr = row["FILTER"]
     # 如果过 info 中没有 AO 字段，则跳过该行
     if "AO" not in info:
         continue
     info_dict = dict(item.split("=") for item in info.split(";"))
     ao = info_dict["AO"]
     dp = int(info_dict["DP"])
-    # 多 ALT 拆成多条
+
+    # 多个 ALT
     if "," in ao:
         aos = [int(x) for x in ao.split(",")]
         alts = alt.split(",")
         for ia in range(len(aos)):
             curalt = alts[ia]
+            # MNP 且 ALT 与 REF 长度相同
             if (len(ref) > 1) and (len(ref) == len(curalt)):
                 for ir in range(len(ref)):
                     if ref[ir] != curalt[ir]:
-                        out_recs.append([chrom, pos + ir, ref[ir], curalt[ir],
-                                         aos[ia], dp, aos[ia] / dp, fltr])
+                        out_recs.append(
+                            [chrom, pos + ir, ref[ir], curalt[ir], aos[ia], dp, aos[ia] / dp, fltr]
+                        )
+            # 直接输出
             else:
                 out_recs.append([chrom, pos, ref, alts[ia], aos[ia], dp, aos[ia] / dp, fltr])
+    # 只有一个 ALT
     else:
         freq = int(ao) / dp
         # MNP 拆成单个 SNP
@@ -48,8 +53,10 @@ for row in reader:
         else:
             out_recs.append([chrom, pos, ref, alt, ao, dp, freq, fltr])
 # 使用 Dataframe 处理复杂情况
-df = pd.DataFrame(out_recs,
-                  columns=["Chrom", "Pos", "Ref", "Alt", "Alt_Depth", "Total_Depth", "Alt_Freq", "Filter"])
+df = pd.DataFrame(
+    out_recs,
+    columns=["Chrom", "Pos", "Ref", "Alt", "Alt_Depth", "Total_Depth", "Alt_Freq", "VCF_Filter"]
+)
 # 去重, sum 相同位置的变异的 Depth 和 Freq
 dfgrp = df.groupby(["Chrom", "Pos", "Ref", "Alt"]).sum().reset_index()
 dfgrp["Alt_Freq"] = dfgrp["Alt_Freq"].apply(lambda x: round(x, 4))

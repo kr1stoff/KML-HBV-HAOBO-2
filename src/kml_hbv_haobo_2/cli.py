@@ -18,9 +18,12 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 @click.help_option(help='获取帮助信息')
 def main(input_tab, output_dir, threads, freebayes_para_num):
     """KML 浩博 HBV X 基因变异分析流程"""
-    logging.info("开始 KML 浩博 HBV X 基因变异分析流程")
+    logging.info("开始 KML 浩博 HBV 基因变异分析流程")
+
     output_dir = Path(output_dir).resolve()
     # fastq
     prepare_fastq_by_samptab(output_dir, input_tab, threads)
     # snakemake
     run_snakemake(input_tab, output_dir, threads, freebayes_para_num)
+    
+    logging.info("KML 浩博 HBV 基因变异分析流程完成")

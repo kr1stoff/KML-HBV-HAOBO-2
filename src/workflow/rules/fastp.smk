@@ -25,6 +25,8 @@ rule fastp:
         f"file:{workflow.basedir}/wrappers/fastp"
 
 
+# Description:  对 cleaned fastq 进行 fastp 质控, 查看 adapter 残留比例.
+#               若 cleaned fastq 为空, 则创建空的 trimmed fastq 文件, html 文件和 json 文件.
 rule cleaned_fastp:
     input:
         sample=[
@@ -44,8 +46,28 @@ rule cleaned_fastp:
     threads: config["threads"]["low"]
     params:
         extra=""
-    wrapper:
-        f"file:{workflow.basedir}/wrappers/fastp"
+    run:
+        import gzip
+        import os
+        if (os.stat(input[0]).st_size <= 100) or (os.stat(input[1]).st_size <= 100):
+            # 创建空的 trimmed fastq 文件
+            for out_file in output.trimmed:
+                with gzip.open(out_file, "wb") as f:
+                    f.write(b"")
+            # 创建空的 html 文件
+            with open(output.html, "w") as f:
+                f.write('<html><body>No reads after first filtering</body></html>')
+            # 创建空的 json 文件
+            with open(output.json, "w") as f:
+                f.write('{"adapter_cutting": {"adapter_trimmed_reads": 0}, "summary": {"before_filtering": {"total_reads": 0}}}')
+        else:
+            # 正常运行 fastp
+            shell("""
+            fastp -w {threads} {params.extra} \
+                -i {input[0]} -I {input[1]} \
+                -o {output.trimmed[0]} -O {output.trimmed[1]} \
+                -h {output.html} -j {output.json} 2> {log}
+            """)
 
 
 rule fq_stats_summary:

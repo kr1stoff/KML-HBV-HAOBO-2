@@ -27,10 +27,10 @@ rule freebayes:
         "freebayes {params} --targets {input.targets} --fasta-reference {input.ref} {input.alns} > {output.vcf} 2> {log}"
 
 # Description: 变异过滤(错误模型)第一步
-#              1. 低质量: 深度 < 1000X, 等位基因深度 < 10X
-#              2. 低于检测限: 最小等位基因频率 < 1%
-#              3. 链偏倚: 正链/负链支持的 reads 数量 < 2, 正链/负链支持的 reads < 该变异总 reads 的 10%
-#              4. 位置偏倚: 变异位置左侧/右侧支持的测序深度 < 2, 变异位置左侧/右侧支持的测序深度 < 该变异总深度的 10%
+#               1. 低质量: 深度 < 1000X, 等位基因深度 < 10X
+#               2. 低于检测限: 最小等位基因频率 < 1%
+#               3. 链偏倚: 正链/负链支持的 reads 数量 < 2, 正链/负链支持的 reads < 该变异总 reads 的 10%
+#               4. 位置偏倚: 变异位置左侧/右侧支持的测序深度 < 2, 变异位置左侧/右侧支持的测序深度 < 该变异总深度的 10%
 # Date: 20251015
 rule filter_variant1:
     input:
@@ -79,7 +79,7 @@ rule vcf2tab:
     input:
         rules.filter_variant2.output,
     output:
-        "variant/{sample}.tsv",
+        "variant/{sample}.raw.tsv",
     log:
         ".log/variant/{sample}.vcf2tab.log",
     benchmark:
@@ -88,6 +88,24 @@ rule vcf2tab:
         config["conda"]["python"]
     script:
         "../scripts/vcf2tab.py"
+
+# Description: 变异检验
+#               1. 二项分布, scipy.stats.binom_test, 使用 测序深度, 最小等位基因频率, 测序错误率
+#               2. 泊松分布, scipy.stats.poisson_test, 使用 测序深度, 最小等位基因频率, 测序错误率
+# Date: 20251015
+rule variant_test:
+    input:
+        rules.vcf2tab.output,
+    output:
+        "variant/{sample}.tsv",
+    log:
+        ".log/variant/{sample}.variant_test.log",
+    benchmark:
+        ".log/variant/{sample}.variant_test.bm"
+    conda:
+        config["conda"]["python"]
+    script:
+        "../scripts/var_test.py"
 
 
 rule csvtk_csv2xlsx:
