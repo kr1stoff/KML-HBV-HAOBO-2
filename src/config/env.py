@@ -10,4 +10,5 @@ CONDA_ENV_DICT = {
     'freebayes': 'basic2',
     'csvtk': 'basic',
     'bcftools': 'basic',
+    'tantan': 'basic2',
 }

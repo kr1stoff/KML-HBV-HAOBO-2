@@ -8,11 +8,11 @@ rule bedtools_genomecov:
     benchmark:
         ".log/lowcov/{sample}.bedtools_genomecov.bm"
     params:
-        "-bga",  # optional parameters
+        "-bga",
     conda:
         config["conda"]["bedtools"]
-    wrapper:
-        f"file:{workflow.basedir}/wrappers/bedtools/genomecov"
+    shell:
+        "bedtools genomecov {params} -ibam {input} > {output} 2> {log}"
 
 
 rule bedtools_genomecov_filter:
@@ -32,21 +32,17 @@ rule bedtools_genomecov_filter:
 
 rule bedtools_merge:
     input:
-        # Multiple bed-files can be added as list
         rules.bedtools_genomecov_filter.output,
     output:
         temp("lowcov/{sample}.lowcovmask.raw.bed"),
-    params:
-        ## Add optional parameters
-        extra="",  ## In this example, we want to count how many input lines we merged per output line
     log:
         ".log/lowcov/{sample}.bedtools_merge.log",
     benchmark:
         ".log/lowcov/{sample}.bedtools_merge.bm"
     conda:
         config["conda"]["bedtools"]
-    wrapper:
-        f"file:{workflow.basedir}/wrappers/bedtools/merge"
+    shell:
+        "bedtools merge -i {input} > {output} 2> {log}"
 
 
 rule bedtools_merge_filter:
@@ -91,7 +87,5 @@ rule samtools_faidx:
         ".log/lowcov/{sample}.samtools_faidx.bm"
     conda:
         config["conda"]["samtools"]
-    params:
-        extra="",
-    wrapper:
-        f"file:{workflow.basedir}/wrappers/samtools/faidx"
+    shell:
+        "samtools faidx {params.extra} {input} > {output} 2> {log}"

@@ -62,7 +62,7 @@ rule filter_variant1:
 rule filter_variant2:
     input:
         rules.filter_variant1.output,
-        config["database"]["low_cpx"]
+        rules.extract_lcr_bed.output,
     output:
         "variant/{sample}.filter.vcf",
     log:

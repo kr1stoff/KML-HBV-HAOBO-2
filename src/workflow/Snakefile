@@ -12,7 +12,7 @@ rule all:
         "variant/all-vars-summary.tsv",
 
 
-include: "rules/bed.smk"
+include: "rules/prepare.smk"
 include: "rules/fastqc.smk"
 include: "rules/fastp.smk"
 include: "rules/map.smk"

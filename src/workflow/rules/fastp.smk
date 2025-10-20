@@ -21,8 +21,13 @@ rule fastp:
             "--cut_front --cut_tail --cut_mean_quality 20 --qualified_quality_phred 20 "
             "--length_required 75 --detect_adapter_for_pe --trim_poly_g"
         ),
-    wrapper:
-        f"file:{workflow.basedir}/wrappers/fastp"
+    shell:
+        """
+        fastp -w {threads} {params.extra} \
+            -i {input.sample[0]} -I {input.sample[1]} \
+            -o {output.trimmed[0]} -O {output.trimmed[1]} \
+            -h {output.html} -j {output.json} 2> {log}
+        """
 
 
 # Description:  对 cleaned fastq 进行 fastp 质控, 查看 adapter 残留比例.

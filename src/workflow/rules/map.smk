@@ -12,13 +12,13 @@ rule bwa_mem:
         config["conda"]["bwa"]
     params:
         extra=r"-M -Y -R '@RG\tID:{sample}\tSM:{sample}\tPL:ILLUMINA'",
-        sorting="samtools",  # Can be 'none', 'samtools' or 'picard'.
-        sort_order="coordinate",  # Can be 'queryname' or 'coordinate'.
-        sort_extra="",  # Extra args for samtools/picard.
-        tmp_dir="/tmp/",  # Path to temp dir. (optional)
     threads: config["threads"]["high"]
-    wrapper:
-        f"file:{workflow.basedir}/wrappers/bwa/mem"
+    shell:
+        """
+        (bwa mem -t {threads} {params.extra} {input.idx} {input.reads} \
+            | samtools view -@ {threads} -hbS - \
+            | samtools sort -@ {threads} -o {output} -) 2> {log}
+        """
 
 
 rule samtools_index:
@@ -30,13 +30,11 @@ rule samtools_index:
         ".log/align/{sample}.samtools_index.bm"
     log:
         ".log/align/{sample}.samtools_index.log",
-    params:
-        extra="",  # optional params string
     threads: config["threads"]["low"]  # This value - 1 will be sent to -@
     conda:
         config["conda"]["samtools"]
-    wrapper:
-        f"file:{workflow.basedir}/wrappers/samtools/index"
+    shell:
+        "samtools index {input} {output} 2> {log}"
 
 
 rule samtools_stats:
@@ -52,8 +50,8 @@ rule samtools_stats:
     conda:
         config["conda"]["samtools"]
     threads: config["threads"]["low"]
-    wrapper:
-        f"file:{workflow.basedir}/wrappers/samtools/stats"
+    shell:
+        "samtools stats --threads {threads} --target-regions {input.bed} {input.bam} > {output} 2> {log}"
 
 
 use rule samtools_stats as samtools_stats_all with:
@@ -69,9 +67,7 @@ use rule samtools_stats as samtools_stats_all with:
 
 rule samtools_depth:
     input:
-        bams=[
-            rules.bwa_mem.output,
-        ],
+        bam=rules.bwa_mem.output,
         bed=".temp/target.sorted.bed",  # optional
     output:
         "align/{sample}.bam.target.depth",
@@ -81,11 +77,8 @@ rule samtools_depth:
         ".log/align/{sample}.samtools_depth.log",
     conda:
         config["conda"]["samtools"]
-    params:
-        # optional bed file passed to -b
-        extra="",  # optional additional parameters as string
-    wrapper:
-        f"file:{workflow.basedir}/wrappers/samtools/depth"
+    shell:
+        "samtools depth -a -b {input.bed} {input.bam} > {output} 2> {log}"
 
 
 rule bam_stats:
