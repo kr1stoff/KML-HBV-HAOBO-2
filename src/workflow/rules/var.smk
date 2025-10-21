@@ -1,10 +1,9 @@
 rule freebayes:
     input:
-        alns=rules.bwa_mem.output,
-        idxs=rules.samtools_index.output,
+        alns=rules.bedtools_intersect.output.bam,
         ref=rules.bedtools_maskfasta.output,
-        fai=rules.samtools_faidx.output,
-        targets=rules.bedtools_sort.output,
+        fai=rules.lowcov_samtools_faidx.output,
+        targets=rules.primer_mask.output.target,
     output:
         vcf="variant/{sample}.vcf",
     log:

@@ -11,4 +11,5 @@ CONDA_ENV_DICT = {
     'csvtk': 'basic',
     'bcftools': 'basic',
     'tantan': 'basic2',
+    'ivar': 'basic2',
 }

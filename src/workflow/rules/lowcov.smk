@@ -1,6 +1,6 @@
 rule bedtools_genomecov:
     input:
-        rules.bwa_mem.output,
+        rules.bedtools_intersect.output.bam,
     output:
         temp("lowcov/{sample}.genomecov"),
     log:
@@ -76,16 +76,16 @@ rule bedtools_maskfasta:
         "bedtools maskfasta -fi {input.fa} -bed {input.bed} -fo {output} 2> {log}"
 
 
-rule samtools_faidx:
+rule lowcov_samtools_faidx:
     input:
         rules.bedtools_maskfasta.output,
     output:
         "lowcov/{sample}.masked.fa.fai",
     log:
-        ".log/lowcov/{sample}.samtools_faidx.log",
+        ".log/lowcov/{sample}.lowcov_samtools_faidx.log",
     benchmark:
-        ".log/lowcov/{sample}.samtools_faidx.bm"
+        ".log/lowcov/{sample}.lowcov_samtools_faidx.bm"
     conda:
         config["conda"]["samtools"]
     shell:
-        "samtools faidx {params.extra} {input} > {output} 2> {log}"
+        "samtools faidx {input} > {output} 2> {log}"

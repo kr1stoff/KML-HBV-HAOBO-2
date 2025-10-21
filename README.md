@@ -30,6 +30,11 @@
 
 ## 更新
 
+- [20251021] 根据浩博脚本更新分析流程
+  - 使用 bwa 比对引物位置, 输出引物位置, 引物flank 50bp屏蔽区域, 靶区域
+  - ivar 去引物
+  - bedtools intersect 去除引物flank 50bp屏蔽区域reads
+
 - [20251013] 根据浩博的修改意见修改流程和参数
   - 修改 fastp 参数 --cut_front --cut_tail --cut_mean_quality 20 --qualified_quality_phred 20 --length_required 75 --detect_adapter_for_pe --trim_poly_g
   - 新增 fastp 接头残留计算

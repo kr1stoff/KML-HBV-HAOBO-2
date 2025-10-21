@@ -47,7 +47,7 @@ if target_depth_file.stat().st_size != 0:
     depth_50_rate = target_depth[target_depth[2] > mean_depth * 0.5].shape[0] / target_size
     # [20251013] 新增均一性 P90/P10 数值
     depth_p90 = int(target_depth[2].quantile(0.9))
-    depth_p10 = int(target_depth[2].quantile(0.1))
+    depth_p10 = max(int(target_depth[2].quantile(0.1)), 1)  # 避免除0错误
     p90_div_p10 = depth_p90 / depth_p10
 else:
     target_size, target_covered_size, covarage_rate = 0, 0, 0

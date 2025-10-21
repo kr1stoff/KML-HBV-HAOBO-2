@@ -1,7 +1,8 @@
 rule bwa_mem:
     input:
         reads=rules.fastp.output.trimmed,
-        idx=multiext(config["database"]["ref"], ".amb", ".ann", ".bwt", ".pac", ".sa"),
+        ref=rules.copy_ref.output,
+        idx=rules.bwa_index.output,
     output:
         "align/{sample}.bam",
     benchmark:
@@ -15,7 +16,7 @@ rule bwa_mem:
     threads: config["threads"]["high"]
     shell:
         """
-        (bwa mem -t {threads} {params.extra} {input.idx} {input.reads} \
+        (bwa mem -t {threads} {params.extra} {input.ref} {input.reads} \
             | samtools view -@ {threads} -hbS - \
             | samtools sort -@ {threads} -o {output} -) 2> {log}
         """
@@ -30,7 +31,6 @@ rule samtools_index:
         ".log/align/{sample}.samtools_index.bm"
     log:
         ".log/align/{sample}.samtools_index.log",
-    threads: config["threads"]["low"]  # This value - 1 will be sent to -@
     conda:
         config["conda"]["samtools"]
     shell:
@@ -40,7 +40,7 @@ rule samtools_index:
 rule samtools_stats:
     input:
         bam=rules.bwa_mem.output,
-        bed=rules.bedtools_sort.output,  # Optional input, specify target regions
+        bed=rules.primer_mask.output.target,
     output:
         "align/{sample}.bam.target.stat",
     benchmark:
@@ -54,7 +54,7 @@ rule samtools_stats:
         "samtools stats --threads {threads} --target-regions {input.bed} {input.bam} > {output} 2> {log}"
 
 
-use rule samtools_stats as samtools_stats_all with:
+rule samtools_stats_all:
     input:
         rules.bwa_mem.output,
     output:
@@ -63,12 +63,17 @@ use rule samtools_stats as samtools_stats_all with:
         ".log/align/{sample}.samtools_stats_all.bm"
     log:
         ".log/align/{sample}.samtools_stats_all.log",
+    conda:
+        config["conda"]["samtools"]
+    threads: config["threads"]["low"]
+    shell:
+        "samtools stats --threads {threads} {input} > {output} 2> {log}"
 
 
 rule samtools_depth:
     input:
         bam=rules.bwa_mem.output,
-        bed=".temp/target.sorted.bed",  # optional
+        bed=rules.primer_mask.output.target,
     output:
         "align/{sample}.bam.target.depth",
     benchmark:
@@ -116,7 +121,7 @@ rule bam_stats_summary:
 rule samtools_bedcov:
     input:
         rules.bwa_mem.output,
-        rules.bedtools_sort.output,
+        rules.primer_mask.output.target,
         rules.samtools_index.output,
     output:
         "align/{sample}.bam.target.bedcov",
