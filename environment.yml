@@ -4,11 +4,6 @@ channels:
   - conda-forge
   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
 dependencies:
-  - biopython=1.85=py312h66e93f0_1
   - click=8.2.1=pyh707e725_0
   - pandas=2.2.3=py312h6a678d5_0
   - python=3.12.2=hab00c5b_0_cpython
-  - pyyaml=6.0.2=py312h5eee18b_0
-  - scipy=1.15.1=py312h180e4f1_0
-  - vcfpy=0.13.8=pyhdfd78af_0
-  - statsmodels=0.14.5=py312h4f23490_1

@@ -1,0 +1,9 @@
+name: snakemake
+channels:
+  - bioconda
+  - conda-forge
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+dependencies:
+  - snakemake=9.6.0=hdfd78af_0
+
+prefix: "/home/mengxf/miniforge3/envs/snakemake"
