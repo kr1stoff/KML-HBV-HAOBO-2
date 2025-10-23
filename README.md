@@ -8,6 +8,12 @@
   /home/mengxf/miniforge3/envs/python3.12/bin/python -m src.kml_hbv_haobo_2 --input-tab /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/input.hbv.tsv --output-dir /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/results/250829 --threads 32
   ```
 
+- Singularity 容器运行
+
+  ```bash
+  singularity exec --containall --bind /data:/data /data/mengxf/Software/Singularity/kml-haobo-hbv-ubuntu22.04.sif bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023-2 --threads 32"
+  ```
+
 ## 同步结果
 
 - 分析结果
@@ -23,6 +29,9 @@
   ```
 
 ## 更新
+
+- [20251023] 新增 Singularity 容器支持
+  - 容器所在地址为 /data/mengxf/Software/Singularity/kml-haobo-hbv-ubuntu22.04.sif
 
 - [20251021] 根据浩博脚本更新分析流程
   - 使用 bwa 比对引物位置, 输出引物位置, 引物flank 50bp屏蔽区域, 靶区域

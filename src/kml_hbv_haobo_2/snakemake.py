@@ -6,7 +6,7 @@ from subprocess import run
 from src.kml_hbv_haobo_2.fastq import get_sample_names_by_samptab
 from src.kml_hbv_haobo_2.config import get_thread_dict, get_custom_params
 from src.config.env import CONDA_ENV_DICT
-from src.config.software import ACTIVATE
+from src.config.software import SNAKEMAKE
 from src.config.database import DATABASE
 
 
@@ -46,12 +46,7 @@ def run_snakemake(input_tab: str, workdir: Path, threads: int, freebayes_para_nu
     # 运行 snakemake 流程
     snakefile = Path(__file__).resolve().parents[1].joinpath('workflow/Snakefile')
     logfile = f'{workdir}/.temp/snakemake.log'
-    cml = f"""
-    source {ACTIVATE} snakemake
-    # use-conda
-    snakemake -c {threads} --use-conda -s {snakefile} --configfile {configfile} --ignore-incomplete --scheduler greedy
-    conda deactivate
-    """
+    cml = f"{SNAKEMAKE} -c {threads} --use-conda -s {snakefile} --configfile {configfile} --ignore-incomplete --scheduler greedy"
     logging.debug(cml)
     proc = run(cml, shell=True, executable='/bin/bash', capture_output=True, encoding='utf-8')
     # 输出出来这段日志

@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 @click.version_option(version=__version__, message='KML HBV HAOBO Version: %(version)s', help='显示版本信息')
 @click.help_option(help='获取帮助信息')
 def main(input_tab, output_dir, threads, freebayes_para_num):
-    """KML 浩博 HBV X 基因变异分析流程"""
+    """KML 浩博 HBV 基因变异分析流程"""
     logging.info("开始 KML 浩博 HBV 基因变异分析流程")
 
     output_dir = Path(output_dir).resolve()

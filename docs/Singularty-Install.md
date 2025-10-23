@@ -1,76 +1,106 @@
-# Singularty 安装流程
+# Singularty 部署
 
-1. docker 拉取 Ubuntu 22.04 镜像, 并打包成 `.tar` 文件
-
-    ```bash
-    docker pull ubuntu:22.04
-    docker save -o ubuntu22.04.tar ubuntu:22.04
-    ```
-
-2. 创建沙盒模式容器
+1. 创建沙盒容器
 
     ```bash
-    singularity build --sandbox ubuntu22.04_sandbox docker-archive://ubuntu22.04.tar
+    singularity build --fakeroot --sandbox kml-haobo-hbv-ubuntu22.04-sandbox /data/mengxf/GitHub/KML-HBV-HAOBO-2/singularity.def
     ```
 
-3. 开发模式进入容器
-    - 避免宿主机 `$HOME` 绑定到容器
-    - 容器内提升到 root 权限
-    - 写入模式，允许安装软件、修改配置、保存文件
-    - 挂载本地目录
+2. 进入容器
 
     ```bash
-    singularity shell --fakeroot --no-home --writable --bind /data/mengxf:/mnt ubuntu22.04_sandbox
+    singularity shell --fakeroot --containall --writable --bind /data/mengxf:/mnt kml-haobo-hbv-ubuntu22.04-sandbox
     ```
 
-4. 容器内安装必要软件  
+3. 安装 Conda 环境
 
     ```bash
-    apt update
-    apt install -y vim less tzdata ca-certificates
+    # 激活 conda 环境
+    source /opt/miniconda3/etc/profile.d/conda.sh
+    # snakemake 环境
+    mamba create -n snakemake -y bioconda::snakemake=9.6.0
+    # python3.12 环境
+    mamba create -n python3.12 -y python=3.12
+    mamba install -n python3.12 -c bioconda -c conda-forge -y biopython click numpy pandas pyyaml scipy vcfpy statsmodels openpyxl
+    # basic 环境
+    mamba create -n basic -y python=3.8
+    mamba install -n basic -c bioconda -c conda-forge -y fastqc multiqc bwa samtools bedtools fastp freebayes csvtk bcftools tantan ivar
     ```
 
-    注:
-    - tzdata 需要交互式配置时区 ASIA/Shanghai
-    - ca-certificates 用于 HTTPS 下载, 否则 mamba 安装包时会报错
+4. 复制流程代码库
 
-    *可以激活 /root/.bashrc 使用 root 环境变量*
+   ```bash
+   cp -r /mnt/GitHub/KML-HBV-HAOBO-2 /opt/
+   ```
 
-    ```bash
-    source /root/.bashrc
-    ```
+   修改流程配置文件. `/opt/KML-HBV-HAOBO-2/src/config` 目录
 
-5. 安装 Conda
+    - database.py
 
-    ```bash
-    cd /mnt/Download
-    bash Miniforge3-Linux-x86_64.sh
-    ```
+      ```python
+      DATABASE = {
+          'ref': '/opt/KML-HBV-HAOBO-2/assets/D00330/D00330.fasta',
+          'known_sites': '/opt/KML-HBV-HAOBO-2/assets/known_sites.csv',
+          'primer_fa': '/opt/KML-HBV-HAOBO-2/assets/primer.fasta',
+      }
+      ```
 
-    更新 conda, mamba
+    - env.py
 
-    ```bash
-    mamba update -y conda mamba
-    ```
+      ```python
+      CONDA_ENV_DICT = {
+          'python': 'python3.12',
+          'fastqc': 'basic',
+          'multiqc': 'basic',
+          'bwa': 'basic',
+          'samtools': 'basic',
+          'bedtools': 'basic',
+          'fastp': 'basic',
+          'freebayes': 'basic',
+          'csvtk': 'basic',
+          'bcftools': 'basic',
+          'tantan': 'basic',
+          'ivar': 'basic',
+      }
+      ```
 
-6. 创建环境
+    - software.py
 
-    - python3.12 环境
+      ```python
+      SNAKEMAKE = '/opt/miniconda3/envs/snakemake/bin/snakemake'
+      ```
+
+5. 包装成一个程序
+
+    - 创建文件 `/bin/KML-HBV-HAOBO-2`
 
         ```bash
-        mamba create -n python3.12 -y python=3.12
-        mamba install -n python3.12 -c bioconda -c conda-forge -y biopython click numpy pandas pyyaml scipy vcfpy statsmodels
+        #!/bin/bash
+
+        cd /opt/KML-HBV-HAOBO-2
+        /opt/miniconda3/envs/python3.12/bin/python -m src.kml_hbv_haobo_2 "$@"
         ```
 
-    - basic 环境
+    - 赋予可执行权限
 
         ```bash
-        mamba create -n basic -y python=3.8
-        mamba install -n basic -c bioconda -c conda-forge -y fastqc multiqc bwa samtools bedtools fastp freebayes csvtk bcftools tantan ivar
+        chmod +x /bin/KML-HBV-HAOBO-2
         ```
 
-    - snakemake 环境
+6. 运行测试
 
-        ```bash
-        mamba create -n snakemake -y snakemake=9.6.0
-        ```
+   ```bash
+   singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04-sandbox bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023 --threads 32"
+   ```
+
+7. sandbox 转 SIF
+
+    ```bash
+    singularity build --fakeroot kml-haobo-hbv-ubuntu22.04.sif kml-haobo-hbv-ubuntu22.04-sandbox
+    ```
+
+8. 运行项目数据
+  
+   ```bash
+   singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04.sif bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023 --threads 32"
+   ```
