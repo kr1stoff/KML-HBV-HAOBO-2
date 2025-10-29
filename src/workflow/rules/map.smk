@@ -40,7 +40,7 @@ rule samtools_index:
 rule samtools_stats:
     input:
         bam=rules.bwa_mem.output,
-        bed=rules.primer_mask.output.target,
+        bed=rules.make_target_bed.output,
     output:
         "align/{sample}.bam.target.stat",
     benchmark:
@@ -73,7 +73,7 @@ rule samtools_stats_all:
 rule samtools_depth:
     input:
         bam=rules.bwa_mem.output,
-        bed=rules.primer_mask.output.target,
+        bed=rules.make_target_bed.output,
     output:
         "align/{sample}.bam.target.depth",
     benchmark:
@@ -121,7 +121,7 @@ rule bam_stats_summary:
 rule samtools_bedcov:
     input:
         rules.bwa_mem.output,
-        rules.primer_mask.output.target,
+        rules.make_target_bed.output,
         rules.samtools_index.output,
     output:
         "align/{sample}.bam.target.bedcov",

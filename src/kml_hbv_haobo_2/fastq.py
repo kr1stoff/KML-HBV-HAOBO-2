@@ -5,22 +5,21 @@ import re
 import logging
 from multiprocessing import Pool
 
+from src.kml_hbv_haobo_2.args import Argument
 
-def prepare_fastq_by_samptab(workdir: Path, samptab: str, threads: int) -> None:
+
+def prepare_fastq_by_samptab(args: Argument) -> None:
     """
     在项目目录下面准备 fastq 文件
     - 如果未压缩 link, 如果压缩 zcat
     - 支持 .tsv 和 .xlsx 格式
-    :param workdir:     工作目录
-    :param samptab:     样本信息表 samptab
-    :return:
     """
     logging.info('在项目目录下面准备 fastq 文件')
-    workdir.joinpath('.rawdata').mkdir(exist_ok=True, parents=True)
-    df = samptab2dataframe(samptab)
+    args.output_dir.joinpath('.rawdata').mkdir(exist_ok=True, parents=True)
+    df = samptab2dataframe(args.input_tab)
     # * 多线程软链接或解压
-    pargs = [(workdir, row[1][0], row[1][1], row[1][2]) for row in df.iterrows()]
-    with Pool(threads) as pool:
+    pargs = [(args.output_dir, row[1][0], row[1][1], row[1][2]) for row in df.iterrows()]
+    with Pool(args.threads) as pool:
         pool.map(copy_fastq, pargs)
 
 

@@ -41,8 +41,7 @@ rule primer_mask:
         fai=rules.samtools_faidx.output,
     output:
         primer="prepare/primer.mask.bed",
-        target="prepare/target.bed",
-        full=temp("prepare/genome.full.bed")
+        # target="prepare/target.bed",
     log:
         ".log/bed/primer_mask.log"
     benchmark:
@@ -52,8 +51,19 @@ rule primer_mask:
     conda:
         config["conda"]["bedtools"]
     shell:
-        """
-        bedtools slop -b {params.flank} -i {input.bed} -g {input.fai} > {output.primer} 2> {log}
-        awk -v OFS="\t" '{{print $1,0,$2}}' {input.fai} > {output.full} 2>> {log}
-        bedtools subtract -a {output.full} -b {output.primer} > {output.target} 2>> {log}
-        """
+        "bedtools slop -b {params.flank} -i {input.bed} -g {input.fai} > {output.primer} 2> {log}"
+
+
+rule make_target_bed:
+    input:
+        rules.primer_mask.output.primer
+    output:
+        "prepare/target.bed",
+    log:
+        ".log/bed/make_target_bed.log"
+    benchmark:
+        ".log/bed/make_target_bed.bm"
+    conda:
+        config["conda"]["python"]
+    script:
+        "../scripts/make_target_bed.py"

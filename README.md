@@ -30,6 +30,10 @@
 
 ## 更新
 
+- [20251029] 新增支持输入分型
+  - 修复 target 区域错误的 BUG
+  - 新增支持输入分型, 并根据分型调整参考序列
+
 - [20251023] 新增 Singularity 容器支持
   - 容器所在地址为 /data/mengxf/Software/Singularity/kml-haobo-hbv-ubuntu22.04.sif
 

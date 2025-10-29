@@ -3,7 +3,7 @@ rule freebayes:
         alns=rules.bedtools_intersect.output.bam,
         ref=rules.bedtools_maskfasta.output,
         fai=rules.lowcov_samtools_faidx.output,
-        targets=rules.primer_mask.output.target,
+        targets=rules.make_target_bed.output,
     output:
         vcf="variant/{sample}.vcf",
     log:
