@@ -1,5 +1,7 @@
 # Singularty 部署 KML-HBV-HAOBO-2
 
+## 新建
+
 1. 创建沙盒容器
 
     ```bash
@@ -16,7 +18,8 @@
 
     ```bash
     # 激活 conda 环境
-    source /opt/miniconda3/etc/profile.d/conda.sh
+    conda init
+    source /root/.bashrc
     # snakemake 环境
     mamba create -n snakemake -y bioconda::snakemake=9.6.0
     # python3.12 环境
@@ -33,42 +36,13 @@
    cp -r /mnt/GitHub/KML-HBV-HAOBO-2 /opt/
    ```
 
-   修改流程配置文件. `/opt/KML-HBV-HAOBO-2/src/config` 目录
+    修改流程配置文件. `/opt/KML-HBV-HAOBO-2/src/config` 目录
 
-    - database.py
-
-      ```python
-      DATABASE = {
-          'ref': '/opt/KML-HBV-HAOBO-2/assets/D00330/D00330.fasta',
-          'known_sites': '/opt/KML-HBV-HAOBO-2/assets/known_sites.csv',
-          'primer_fa': '/opt/KML-HBV-HAOBO-2/assets/primer.fasta',
-      }
-      ```
-
-    - env.py
-
-      ```python
-      CONDA_ENV_DICT = {
-          'python': 'python3.12',
-          'fastqc': 'basic',
-          'multiqc': 'basic',
-          'bwa': 'basic',
-          'samtools': 'basic',
-          'bedtools': 'basic',
-          'fastp': 'basic',
-          'freebayes': 'basic',
-          'csvtk': 'basic',
-          'bcftools': 'basic',
-          'tantan': 'basic',
-          'ivar': 'basic',
-      }
-      ```
-
-    - software.py
-
-      ```python
-      SNAKEMAKE = '/opt/miniconda3/envs/snakemake/bin/snakemake'
-      ```
+    ```bash
+    sed -i 's/data\/mengxf\/GitHub/opt/g' database.py
+    sed -i 's/basic2/basic/g' env.py
+    sed -i 's/home\/mengxf\/miniforge3/opt\/miniconda3/g' software.py
+    ```
 
 5. 包装成一个程序
 
@@ -90,7 +64,10 @@
 6. 运行测试
 
    ```bash
-   singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04-sandbox bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023 --threads 32"
+   # 帮助
+   singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04-sandbox bash -c "KML-HBV-HAOBO-2 --help"
+   # 测试运行
+   singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04-sandbox bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023"
    ```
 
 7. sandbox 转 SIF
@@ -102,5 +79,5 @@
 8. 运行项目数据
   
    ```bash
-   singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04.sif bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023 --threads 32"
+   singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04.sif bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023"
    ```

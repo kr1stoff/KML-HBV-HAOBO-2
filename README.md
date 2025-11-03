@@ -5,14 +5,29 @@
 - 主流程
 
   ```bash
-  /home/mengxf/miniforge3/envs/python3.12/bin/python -m src.kml_hbv_haobo_2 --input-tab /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/input.hbv.tsv --output-dir /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/results/250829 --threads 32
-  ```
+  /home/mengxf/miniforge3/envs/python3.12/bin/python -m src.kml_hbv_haobo_2 \
+    --input-tab /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/input.hbv.tsv \
+    --output-dir /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/results/250829
 
 - Singularity 容器运行
 
   ```bash
-  singularity exec --containall --bind /data:/data /data/mengxf/Software/Singularity/kml-haobo-hbv-ubuntu22.04.sif bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023-2 --threads 32"
+  singularity exec --containall \
+    --bind /data:/data /data/mengxf/Software/Singularity/kml-haobo-hbv-ubuntu22.04.sif bash \
+    -c "KML-HBV-HAOBO-2 \
+     --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv \
+     --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023-2"
   ```
+
+## 辅助工具
+
+- 内存使用统计
+
+    ```bash
+    /home/mengxf/miniforge3/envs/python3.12/bin/python -m src.util.memory_stats \
+      --resdir /data/mengxf/Project/KML251030-HAOBOHBV-HWWV3AFX7/results/251031-bds-4 \
+      --outfile /data/mengxf/Project/KML251030-HAOBOHBV-HWWV3AFX7/results/251031-bds-4/memory_stats.tsv
+    ```
 
 ## 同步结果
 
