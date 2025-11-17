@@ -16,15 +16,15 @@ dfs.append(known_sites.drop(columns=['key']))
 alldf = pd.ExcelFile(rawtab)
 for sn in alldf.sheet_names:
     df = pd.read_excel(rawtab, sheet_name=sn,
-                       usecols=['Chrom', 'Pos', 'Ref', 'Alt', 'Alt_Depth', 'Alt_Freq'])
+                       usecols=['Chrom', 'Pos', 'Ref', 'Alt', 'AltDepth', 'AltFreq'])
     df['key'] = df['Chrom'] + '_' + df['Pos'].astype(str) + '_' + df['Ref'] + '_' + df['Alt']
     target_df = df[df['key'].isin(known_sites['key'])]
-    target_df = target_df[target_df['Alt_Depth'] > int(snakemake.params.core_depth_cutoff)]
+    target_df = target_df[target_df['AltDepth'] > int(snakemake.params.core_depth_cutoff)]
     non_target_df = df[~df['key'].isin(known_sites['key'])]
-    non_target_df = df[df['Alt_Depth'] > int(snakemake.params.other_depth_cutoff)]
+    non_target_df = df[df['AltDepth'] > int(snakemake.params.other_depth_cutoff)]
     # 合并
     df = pd.concat([target_df, non_target_df], axis=0)
-    df.rename(columns={'Alt_Depth': f'Depth-{sn}', 'Alt_Freq': f'Freq-{sn}'}, inplace=True)
+    df.rename(columns={'AltDepth': f'Depth-{sn}', 'AltFreq': f'Freq-{sn}'}, inplace=True)
     df.drop(columns=['key'], inplace=True)
     dfs.append(df)
 merged = reduce(lambda x, y: pd.merge(x, y, on=['Chrom', 'Pos', 'Ref', 'Alt'], how='outer'), dfs)

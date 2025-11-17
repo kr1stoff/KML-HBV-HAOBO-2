@@ -9,6 +9,12 @@
     --input-tab /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/input.hbv.tsv \
     --output-dir /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/results/250829
 
+- snakemake 运行
+
+  ```bash
+  snakemake -c 32 --use-conda -s /data/mengxf/GitHub/KML-HBV-HAOBO-2/src/workflow/Snakefile --configfile .temp/snakemake.yaml --scheduler greedy
+  ```
+
 - Singularity 容器运行
 
   ```bash
@@ -45,6 +51,13 @@
 
 ## 更新
 
+- [20251114]
+  - 修改 vcf 过滤部分  
+    - `bcftools norm` + `vt decompose_blocksub` 把多等位基因 MNP 转换为 单等位基因 SNP
+    - 重复的 SNP 合并 AO, SAF/SAR, RPL/RLR，reads 是加和关系
+    - vcf filter 标签从 bcftools filter 转为自建脚本，LowComplexity 标签脚本也整合进来
+  - 新增软件 vt 对应修改 singularity 中 conda 环境
+  
 - [20251029] 新增支持输入分型
   - 修复 target 区域错误的 BUG
   - 新增支持输入分型, 并根据分型调整参考序列
@@ -64,7 +77,7 @@
   - 新增比对质控均一性 P90/P10 数值
   - 靶区域从 1300-1800bp 调整至 70-1730bp (排除引物+flank区域70bp)
   - 修改 freebayes 参数 --pooled-continuous --min-repeat-size 10 --read-indel-limit 15 --use-best-n-alleles 4 --theta 0.005 --haplotype-length 0 --min-alternate-fraction 0.005 --min-base-quality 30 --min-coverage 1000 --min-alternate-count 10 --min-mapping-quality 30 --max-complex-gap 1 --trim-complex-tail
-  - 加入错误模型过滤 深度,最小等位基因深度,变异频率,链偏好,位置偏好,低复杂区域变异
+  - 加入错误模型过滤 深度,最小等位基因深度,变异频率,链偏倚,位置偏倚,低复杂区域变异
 
 - [20251010]
   - 新增 freebayes 线程数参数, 默认为 0, 表示和线程数相同

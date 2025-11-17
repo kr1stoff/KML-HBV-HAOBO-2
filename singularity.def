@@ -4,7 +4,7 @@ From: ubuntu22.04.tar
 %post
     # 更新系统并安装必要软件，包括wget
     apt-get update
-    apt-get install -y wget vim less ca-certificates
+    apt-get install -y wget vim less ca-certificates rsync
     DEBIAN_FRONTEND=noninteractive TZ=Asia/Shanghai apt-get install -y tzdata
 
     # 在容器内下载并安装Miniconda到/opt目录

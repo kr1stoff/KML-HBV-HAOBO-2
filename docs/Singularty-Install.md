@@ -27,16 +27,16 @@
     mamba install -n python3.12 -c bioconda -c conda-forge -y biopython click numpy pandas pyyaml scipy vcfpy statsmodels openpyxl
     # basic 环境
     mamba create -n basic -y python=3.8
-    mamba install -n basic -c bioconda -c conda-forge -y fastqc multiqc bwa samtools bedtools fastp freebayes csvtk bcftools tantan ivar
+    mamba install -n basic -c bioconda -c conda-forge -y fastqc multiqc bwa samtools bedtools fastp freebayes csvtk bcftools tantan ivar vt
     ```
 
 4. 复制流程代码库
 
    ```bash
-   cp -r /mnt/GitHub/KML-HBV-HAOBO-2 /opt/
+   cp -r /mnt/GitHub/KML-HBV-HAOBO-2 /opt
    ```
 
-    修改流程配置文件. `/opt/KML-HBV-HAOBO-2/src/config` 目录
+5. 修改流程配置文件. `/opt/KML-HBV-HAOBO-2/src/config` 目录
 
     ```bash
     sed -i 's/data\/mengxf\/GitHub/opt/g' database.py
@@ -44,7 +44,7 @@
     sed -i 's/home\/mengxf\/miniforge3/opt\/miniconda3/g' software.py
     ```
 
-5. 包装成一个程序
+6. 包装成一个程序
 
     - 创建文件 `/bin/KML-HBV-HAOBO-2`
 
@@ -61,7 +61,7 @@
         chmod +x /bin/KML-HBV-HAOBO-2
         ```
 
-6. 运行测试
+7. 运行测试
 
    ```bash
    # 帮助
@@ -70,14 +70,32 @@
    singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04-sandbox bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023"
    ```
 
-7. sandbox 转 SIF
+8. sandbox 转 SIF
 
     ```bash
     singularity build --fakeroot kml-haobo-hbv-ubuntu22.04.sif kml-haobo-hbv-ubuntu22.04-sandbox
     ```
 
-8. 运行项目数据
+9. 运行项目数据
   
    ```bash
    singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04.sif bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023"
    ```
+
+## 更新
+
+1. 进入环境，同新建部分
+2. （如需）新增软件
+
+    ```bash
+    mamba install -n basic -c bioconda -c conda-forge -y vt
+    ```
+
+3. 同步代码仓库
+
+    ```bash
+    rsync -auvP --delete /mnt/GitHub/KML-HBV-HAOBO-2/ /opt/KML-HBV-HAOBO-2/
+    ```
+
+4. 修改配置文件，同新建部分，按需修改
+5. 测试、转SIF，同新建部分

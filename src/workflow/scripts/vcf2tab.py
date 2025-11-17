@@ -1,63 +1,54 @@
-import csv
-import pandas as pd
+import vcfpy
+from collections import defaultdict
 import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
-vcf_file = snakemake.input[0]
-out_file = snakemake.output[0]
 
-with open(vcf_file) as f:
-    lines = (line for line in f.readlines() if not line.startswith("##"))
-reader = csv.DictReader(lines, delimiter="\t")
-out_recs = []
-for row in reader:
-    chrom = row["#CHROM"]
-    pos = int(row["POS"])
-    ref = row["REF"]
-    alt = row["ALT"]
-    info = row["INFO"]
-    fltr = row["FILTER"]
-    # 如果过 info 中没有 AO 字段，则跳过该行
-    if "AO" not in info:
-        continue
-    info_dict = dict(item.split("=") for item in info.split(";"))
-    ao = info_dict["AO"]
-    dp = int(info_dict["DP"])
+in_vcf = snakemake.input[0]
+out_tab = snakemake.output[0]
 
-    # 多个 ALT
-    if "," in ao:
-        aos = [int(x) for x in ao.split(",")]
-        alts = alt.split(",")
-        for ia in range(len(aos)):
-            curalt = alts[ia]
-            # MNP 且 ALT 与 REF 长度相同
-            if (len(ref) > 1) and (len(ref) == len(curalt)):
-                for ir in range(len(ref)):
-                    if ref[ir] != curalt[ir]:
-                        out_recs.append(
-                            [chrom, pos + ir, ref[ir], curalt[ir], aos[ia], dp, aos[ia] / dp, fltr]
-                        )
-            # 直接输出
-            else:
-                out_recs.append([chrom, pos, ref, alts[ia], aos[ia], dp, aos[ia] / dp, fltr])
-    # 只有一个 ALT
-    else:
-        freq = int(ao) / dp
-        # MNP 拆成单个 SNP
-        if (len(ref) > 1) and (len(ref) == len(alt)):
-            for i in range(len(ref)):
-                if ref[i] != alt[i]:
-                    out_recs.append([chrom, pos + i, ref[i], alt[i], ao, dp, freq, fltr])
-        # 正常情况
-        else:
-            out_recs.append([chrom, pos, ref, alt, ao, dp, freq, fltr])
-# 使用 Dataframe 处理复杂情况
-df = pd.DataFrame(
-    out_recs,
-    columns=["Chrom", "Pos", "Ref", "Alt", "Alt_Depth", "Total_Depth", "Alt_Freq", "VCF_Filter"]
-)
-# 去重, sum 相同位置的变异的 Depth 和 Freq
-dfgrp = df.groupby(["Chrom", "Pos", "Ref", "Alt"]).sum().reset_index()
-dfgrp["Alt_Freq"] = dfgrp["Alt_Freq"].apply(lambda x: round(x, 4))
-dfgrp.to_csv(out_file, index=False, sep="\t")
+reader = vcfpy.Reader.from_path(in_vcf)
+f = open(out_tab, "w")
+f.write('\t'.join(['Chrom', 'Pos', 'Ref', 'Alt', 'TotalDepth', 'AltDepth', 'AltFreq', 'SAF', 'SAR',
+        'ForwardStrandRate', 'ReverseStrandRate', 'RPL', 'RPR', 'PlacedLeftRate', 'PlacedRightRate']) + '\n')
+
+outdict = defaultdict(lambda: {
+    'dp': 0,
+    'ao': [],
+    'saf': [],
+    'sar': [],
+    'rpl': [],
+    'rpr': [],
+})
+
+for record in reader:
+    alt = record.ALT[0].value
+    key = (record.CHROM, record.POS, record.REF, alt)
+    outdict[key]['dp'] = record.INFO.get('DP')
+    # 由于alt可能是多个所以值为列表，当前项目中经过 bcftools norm + vt decompose_blocksub 后 alt只有一个
+    outdict[key]['ao'].append(record.INFO.get('AO', [0])[0])
+    outdict[key]['saf'].append(record.INFO.get('SAF', [0])[0])
+    outdict[key]['sar'].append(record.INFO.get('SAR', [0])[0])
+    outdict[key]['rpl'].append(record.INFO.get('RPL', [0])[0])
+    outdict[key]['rpr'].append(record.INFO.get('RPR', [0])[0])
+
+for key in outdict:
+    ao = sum(outdict[key]['ao'])
+    saf = sum(outdict[key]['saf'])
+    sar = sum(outdict[key]['sar'])
+    rpl = sum(outdict[key]['rpl'])
+    rpr = sum(outdict[key]['rpr'])
+    dp = outdict[key]['dp']
+    # 计算等位基因频率，链偏倚数值，位置偏倚数值
+    af = round(ao / dp if dp > 0 else 0, 4)
+    sa_sum = saf + sar
+    saf_rate = round(saf / sa_sum if sa_sum > 0 else 0, 4)
+    sar_rate = round(sar / sa_sum if sa_sum > 0 else 0, 4)
+    rpl_rate = round(rpl / (rpl + rpr) if rpl + rpr > 0 else 0, 4)
+    rpr_rate = round(rpr / (rpl + rpr) if rpl + rpr > 0 else 0, 4)
+
+    f.write('\t'.join(
+        map(str, list(key) + [outdict[key]['dp'], ao, af, saf, sar, saf_rate, sar_rate, rpl, rpr, rpl_rate, rpr_rate])) + '\n')
+
+f.close()

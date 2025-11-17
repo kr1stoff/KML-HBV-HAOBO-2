@@ -13,7 +13,7 @@ rule freebayes:
     # * 用 thread 控制 freebayes 的并行数量，减小内存压力
     threads:
         config["custom"]["freebayes_threads"]
-    # * [20251014] 浩博建议的参数
+    # [20251014] 浩博建议的参数
     params:
         (
             "--pooled-continuous --min-repeat-size 10 --read-indel-limit 15 --use-best-n-alleles 4 "
@@ -25,58 +25,42 @@ rule freebayes:
     shell:
         "freebayes {params} --targets {input.targets} --fasta-reference {input.ref} {input.alns} > {output.vcf} 2> {log}"
 
-# Description: 变异过滤(错误模型)第一步
-#               1. 低质量: 深度 < 1000X, 等位基因深度 < 10X
-#               2. 低于检测限: 最小等位基因频率 < 1%
-#               3. 链偏倚: 正链/负链支持的 reads 数量 < 2, 正链/负链支持的 reads < 该变异总 reads 的 10%
-#               4. 位置偏倚: 变异位置左侧/右侧支持的测序深度 < 2, 变异位置左侧/右侧支持的测序深度 < 该变异总深度的 10%
-# Date: 20251015
-rule filter_variant1:
+
+# 多等位基因变异拆成多个单等位基因变异
+rule bcftools_norm:
     input:
         rules.freebayes.output,
     output:
-        "variant/{sample}.filter1.vcf",
+        temp("variant/{sample}.norm.vcf"),
     log:
-        ".log/variant/{sample}.filter_variant1.log",
+        ".log/variant/{sample}.bcftools_norm.log",
     benchmark:
-        ".log/variant/{sample}.filter_variant1.bm"
+        ".log/variant/{sample}.bcftools_norm.bm"
     conda:
         config["conda"]["bcftools"]
     shell:
-        """
-        bcftools filter --soft-filter LowQual --exclude 'INFO/DP < 1000 || INFO/AO < 10' {input} | \
-        bcftools filter --mode + --soft-filter BelowLOD --exclude 'INFO/AO / INFO/DP < 0.01' | \
-        bcftools filter --mode + --soft-filter StrandBias --exclude 'SAF < 2 || SAR < 2' | \
-        bcftools filter --mode + --soft-filter StrandBias --exclude '(SAF + SAR) > 0 && SAF / (SAF + SAR) < 0.1' | \
-        bcftools filter --mode + --soft-filter StrandBias --exclude '(SAF + SAR) > 0 && SAR / (SAF + SAR) < 0.1' | \
-        bcftools filter --mode + --soft-filter PosBias --exclude 'RPL < 2 || RPR < 2' | \
-        bcftools filter --mode + --soft-filter PosBias --exclude '(RPL + RPR) < 2 || RPL / (RPL + RPR) < 0.1' | \
-        bcftools filter --mode + --soft-filter PosBias --exclude '(RPL + RPR) < 2 || RPR / (RPL + RPR) < 0.1' > {output}
-        """
+        "bcftools norm -m -both {input} > {output} 2> {log}"
 
 
-# Description: 变异过滤(错误模型)第二步
-#              预先注释好基因组低复杂度 BED 区域, 然后用 soft-filter 方式添加上 LowComplexity 标签
-# Date: 20251015
-rule filter_variant2:
+# MNP 拆成 SNP
+rule vt_decompose_blocksub:
     input:
-        rules.filter_variant1.output,
-        rules.extract_lcr_bed.output,
+        rules.bcftools_norm.output,
     output:
-        "variant/{sample}.filter.vcf",
+        "variant/{sample}.decomposed.vcf",
     log:
-        ".log/variant/{sample}.filter_variant2.log",
+        ".log/variant/{sample}.vt_decompose_blocksub.log",
     benchmark:
-        ".log/variant/{sample}.filter_variant2.bm"
+        ".log/variant/{sample}.vt_decompose_blocksub.bm"
     conda:
-        config["conda"]["python"]
-    script:
-        "../scripts/vcf_low_lcr.py"
+        config["conda"]["vt"]
+    shell:
+        "vt decompose_blocksub {input} > {output} 2> {log}"
 
 
 rule vcf2tab:
     input:
-        rules.filter_variant2.output,
+        rules.vt_decompose_blocksub.output,
     output:
         "variant/{sample}.raw.tsv",
     log:
@@ -88,13 +72,36 @@ rule vcf2tab:
     script:
         "../scripts/vcf2tab.py"
 
+
+# Description: 变异过滤(错误模型)第一步
+#               1. 低质量: 深度 < 1000X, 等位基因深度 < 10X
+#               2. 低于检测限: 最小等位基因频率 < 1%
+#               3. 链偏倚: 正链/负链支持的 reads 数量 < 2, 正链/负链支持的 reads < 该变异总 reads 的 10%
+#               4. 位置偏倚: 变异位置在 read 左侧或右侧支持的测序深度 < 2, 变异位置在 read 左侧或右侧支持的测序深度 < 该变异总深度的 10%
+#               5. 预先注释好基因组低复杂度 BED 区域, 注释 LowComplexity 标签
+# Date: 20251114
+rule vcf_filter:
+    input:
+        rules.vcf2tab.output,
+        rules.extract_lcr_bed.output,
+    output:
+        "variant/{sample}.filter.tsv",
+    log:
+        ".log/variant/{sample}.vcf_filter.log",
+    benchmark:
+        ".log/variant/{sample}.vcf_filter.bm"
+    conda:
+        config["conda"]["python"]
+    script:
+        "../scripts/vcf_filter.py"
+
 # Description: 变异检验
 #               1. 二项分布, scipy.stats.binom_test, 使用 测序深度, 最小等位基因频率, 测序错误率
 #               2. 泊松分布, scipy.stats.poisson_test, 使用 测序深度, 最小等位基因频率, 测序错误率
 # Date: 20251015
 rule variant_test:
     input:
-        rules.vcf2tab.output,
+        rules.vcf_filter.output,
     output:
         "variant/{sample}.tsv",
     log:
@@ -104,7 +111,7 @@ rule variant_test:
     conda:
         config["conda"]["python"]
     script:
-        "../scripts/var_test.py"
+        "../scripts/vcf_test.py"
 
 
 rule csvtk_csv2xlsx:
