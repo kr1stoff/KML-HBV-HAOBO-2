@@ -95,6 +95,7 @@ rule vcf_filter:
     script:
         "../scripts/vcf_filter.py"
 
+
 # Description: 变异检验
 #               1. 二项分布, scipy.stats.binom_test, 使用 测序深度, 最小等位基因频率, 测序错误率
 #               2. 泊松分布, scipy.stats.poisson_test, 使用 测序深度, 最小等位基因频率, 测序错误率
