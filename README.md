@@ -58,7 +58,7 @@
 
 ## 更新
 
-- [20251114]
+- [20251114] 0.1.0
   - 修改 vcf 过滤部分  
     - `bcftools norm` + `vt decompose_blocksub` 把多等位基因 MNP 转换为 单等位基因 SNP
     - 重复的 SNP 合并 AO, SAF/SAR, RPL/RLR，reads 是加和关系
