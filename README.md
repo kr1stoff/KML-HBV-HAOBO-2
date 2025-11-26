@@ -28,6 +28,12 @@
 
 ## 辅助工具
 
+- 自动格式化 snakemake 脚本
+
+    ```bash
+    mamba -n snakemake run snakefmt src/workflow
+    ```
+
 - 内存使用统计
 
     ```bash

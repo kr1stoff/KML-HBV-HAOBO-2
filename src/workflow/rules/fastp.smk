@@ -37,9 +37,12 @@ rule cleaned_fastp:
         sample=[
             "fastp/{sample}.1.fastq.gz",
             "fastp/{sample}.2.fastq.gz",
-        ]
+        ],
     output:
-        trimmed=[temp("fastp/{sample}.trimmed.1.fastq.gz"), temp("fastp/{sample}.trimmed.2.fastq.gz")],
+        trimmed=[
+            temp("fastp/{sample}.trimmed.1.fastq.gz"),
+            temp("fastp/{sample}.trimmed.2.fastq.gz"),
+        ],
         html=temp("fastp/{sample}.trimmed.html"),
         json="fastp/{sample}.trimmed.json",
     log:
@@ -50,29 +53,34 @@ rule cleaned_fastp:
         config["conda"]["fastp"]
     threads: config["threads"]["low"]
     params:
-        extra=""
+        extra="",
     run:
         import gzip
         import os
+
         if (os.stat(input[0]).st_size <= 100) or (os.stat(input[1]).st_size <= 100):
             # 创建空的 trimmed fastq 文件
             for out_file in output.trimmed:
                 with gzip.open(out_file, "wb") as f:
                     f.write(b"")
-            # 创建空的 html 文件
+                    # 创建空的 html 文件
             with open(output.html, "w") as f:
-                f.write('<html><body>No reads after first filtering</body></html>')
-            # 创建空的 json 文件
+                f.write("<html><body>No reads after first filtering</body></html>")
+                # 创建空的 json 文件
             with open(output.json, "w") as f:
-                f.write('{"adapter_cutting": {"adapter_trimmed_reads": 0}, "summary": {"before_filtering": {"total_reads": 0}}}')
+                f.write(
+                    '{"adapter_cutting": {"adapter_trimmed_reads": 0}, "summary": {"before_filtering": {"total_reads": 0}}}'
+                )
         else:
             # 正常运行 fastp
-            shell("""
+            shell(
+                """
             fastp -w {threads} {params.extra} \
                 -i {input[0]} -I {input[1]} \
                 -o {output.trimmed[0]} -O {output.trimmed[1]} \
                 -h {output.html} -j {output.json} 2> {log}
-            """)
+            """
+            )
 
 
 rule fq_stats_summary:

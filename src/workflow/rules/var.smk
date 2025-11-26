@@ -11,8 +11,7 @@ rule freebayes:
     benchmark:
         ".log/variant/{sample}.freebayes.bm"
     # * 用 thread 控制 freebayes 的并行数量，减小内存压力
-    threads:
-        config["custom"]["freebayes_threads"]
+    threads: config["custom"]["freebayes_threads"]
     # [20251014] 浩博建议的参数
     params:
         (

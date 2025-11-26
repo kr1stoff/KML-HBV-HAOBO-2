@@ -1,9 +1,9 @@
 # * 不同分型后续考虑
 rule copy_ref:
     input:
-        config["database"]["ref"]
+        config["database"]["ref"],
     output:
-        "prepare/ref.fasta"
+        "prepare/ref.fasta",
     log:
         ".log/ref/copy_ref.log",
     benchmark:
@@ -16,9 +16,9 @@ rule copy_ref:
 
 rule bwa_index:
     input:
-        rules.copy_ref.output
+        rules.copy_ref.output,
     output:
-        multiext("prepare/ref.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
+        multiext("prepare/ref.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa"),
     log:
         ".log/ref/bwa_index.log",
     benchmark:
@@ -31,9 +31,9 @@ rule bwa_index:
 
 rule samtools_faidx:
     input:
-        rules.copy_ref.output
+        rules.copy_ref.output,
     output:
-        "prepare/ref.fasta.fai"
+        "prepare/ref.fasta.fai",
     log:
         ".log/ref/samtools_faidx.log",
     benchmark:
@@ -46,11 +46,11 @@ rule samtools_faidx:
 
 rule tantan:
     input:
-        config["database"]["ref"]
+        config["database"]["ref"],
     output:
-        "prepare/tantan.fasta"
+        "prepare/tantan.fasta",
     log:
-        ".log/ref/tantan.log"
+        ".log/ref/tantan.log",
     benchmark:
         ".log/ref/tantan.bm"
     conda:
@@ -61,9 +61,9 @@ rule tantan:
 
 rule extract_lcr_bed:
     input:
-        rules.tantan.output
+        rules.tantan.output,
     output:
-        "prepare/lcr_regions.bed"
+        "prepare/lcr_regions.bed",
     log:
         ".log/ref/extract_lcr_bed.log",
     benchmark:
