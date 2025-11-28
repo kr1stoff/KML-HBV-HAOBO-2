@@ -97,5 +97,5 @@
     rsync -auvP --delete /mnt/GitHub/KML-HBV-HAOBO-2/ /opt/KML-HBV-HAOBO-2/
     ```
 
-4. 修改配置文件，同新建部分，按需修改
+4. 修改配置文件，同新建部分
 5. 测试、转SIF，同新建部分
