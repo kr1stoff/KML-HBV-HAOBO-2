@@ -5,9 +5,7 @@
 - 主流程
 
   ```bash
-  /home/mengxf/miniforge3/envs/python3.12/bin/python -m src.kml_hbv_haobo_2 \
-    --input-tab /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/input.hbv.tsv \
-    --output-dir /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/results/250829
+  ~/miniforge3/envs/python3.12/bin/python -m src.kml_hbv_haobo_2 --input-tab /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/input.hbv.tsv --output-dir /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/results/250829
   ```
 
 - snakemake 运行
@@ -19,12 +17,25 @@
 - Singularity 容器运行
 
   ```bash
-  singularity exec --containall \
-    --bind /data:/data /data/mengxf/Software/Singularity/kml-haobo-hbv-ubuntu22.04.sif bash \
-    -c "KML-HBV-HAOBO-2 \
-     --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv \
-     --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023-2"
+  singularity exec --containall --bind /data:/data /data/mengxf/Software/Singularity/kml-haobo-hbv-ubuntu22.04.sif bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023-2"
   ```
+
+## 帮助
+
+```text
+Usage: python -m src.kml_hbv_haobo_2 [OPTIONS]
+
+  KML 浩博 HBV 基因变异分析流程
+
+Options:
+  --input-tab TEXT              输入样本表, 包含样本名, read1 和 read2 的路径  [required]
+  --output-dir TEXT             输出文件夹  [default: kml-hbv-haobo-result]
+  --genotype [A|B|C|D|E|F|G|H]  参考基因型  [default: B]
+  --freebayes-para-num INTEGER  freebayes 线程数参数, 0 表示和线程数相同  [default: 0]
+  --threads INTEGER             线程数  [default: 32]
+  --version                     显示版本信息
+  --help                        获取帮助信息
+```
 
 ## 辅助工具
 
@@ -37,9 +48,7 @@
 - 内存使用统计
 
     ```bash
-    /home/mengxf/miniforge3/envs/python3.12/bin/python -m src.util.memory_stats \
-      --resdir /data/mengxf/Project/KML251030-HAOBOHBV-HWWV3AFX7/results/251031-bds-4 \
-      --outfile /data/mengxf/Project/KML251030-HAOBOHBV-HWWV3AFX7/results/251031-bds-4/memory_stats.tsv
+    ~/miniforge3/envs/python3.12/bin/python -m src.util.memory_stats --resdir /data/mengxf/Project/KML251030-HAOBOHBV-HWWV3AFX7/results/251031-bds-4 --outfile /data/mengxf/Project/KML251030-HAOBOHBV-HWWV3AFX7/results/251031-bds-4/memory_stats.tsv
     ```
 
 ## 同步结果
@@ -55,6 +64,24 @@
   ```bash
   rsync -auvP --delete --include 'Images/***' --include 'InterOp/***' --include 'Thumbnail_Images/***' --include 'RunInfo.xml' --include 'RunParameters.xml' --exclude '*' /data/rawdata/illumina/NEXTseq500/250827_NB501947_0947_AHWWKCAFX7/ /data/share/samba/public/bioinfo/KML250829-HBVHAOBO-HWWKCAFX7/250827_NB501947_0947_AHWWKCAFX7/
   ```
+
+- 远程同步到浩博云服务器, 使用 .pem 文件  
+  - 无密码文件传输
+
+    ```bash
+    rsync -avz -e "ssh -i /data/mengxf/Project/KML251106-HAOBOHBV-PIPELINE-DEPLOY/ec2-20251104.pem" /data/mengxf/Project/KML251126-HAOBOHBV-HCLYCAFXC/FASTQ/ ubuntu@52.80.144.175:/home/ubuntu/KML/rawdata/251126-HAOBOHBV-HCLYCAFXC/
+    ```
+
+  - 有密码文件传输
+
+    ```bash
+    # 需要加压缩包密码
+    tar cvf - /data/mengxf/Project/KML251126-HAOBOHBV-HCLYCAFXC/FASTQ/ | gpg --batch --passphrase "123456" --pinentry-mode loopback -c --cipher-algo AES256 -o /data/mengxf/Project/KML251126-HAOBOHBV-HCLYCAFXC/KML251126-HAOBOHBV-HCLYCAFXC.tar.gpg
+    # 上传压缩包
+    scp -i /data/mengxf/Project/KML251106-HAOBOHBV-PIPELINE-DEPLOY/ec2-20251104.pem /data/mengxf/Project/KML251126-HAOBOHBV-HCLYCAFXC/KML251126-HAOBOHBV-HCLYCAFXC.tar.gpg ubuntu@52.80.144.175:/home/ubuntu/KML/rawdata/
+    # 解压缩
+    gpg --batch --passphrase "123456" --pinentry-mode loopback -d /home/ubuntu/KML/rawdata/KML251126-HAOBOHBV-HCLYCAFXC.tar.gpg | tar -xzvf -
+    ```
 
 ## 更新
 
