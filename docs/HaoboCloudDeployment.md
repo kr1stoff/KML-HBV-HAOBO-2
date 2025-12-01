@@ -3,11 +3,15 @@
 1. 安装 `singularity` 容器
 
     ```bash
-    # 用不了就 scp 过去
+    # 下载 miniforge
     wget https://mirrors.bfsu.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-x86_64.sh
-    bash Miniforge3-Linux-x86_64.sh
+    # 免交互安装
+    bash Miniforge3-Linux-x86_64.sh -b -p $HOME/miniforge3
+    # 初始化 conda
+    $HOME/miniforge3/bin/conda init --all
+    # 激活环境
     source ~/.bashrc
-    # singularity
+    # 安装 singularity
     mamba create -n singularity conda-forge::singularity=3.8.6 -y
     # 环境变量
     sudo ln -sf /home/ubuntu/miniforge3/envs/singularity/bin/singularity /usr/bin/

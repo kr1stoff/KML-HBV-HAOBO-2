@@ -69,7 +69,7 @@ Options:
   - 无密码文件传输
 
     ```bash
-    rsync -avz -e "ssh -i /data/mengxf/Project/KML251106-HAOBOHBV-PIPELINE-DEPLOY/ec2-20251104.pem" /data/mengxf/Project/KML251126-HAOBOHBV-HCLYCAFXC/FASTQ/ ubuntu@52.80.144.175:/home/ubuntu/KML/rawdata/251126-HAOBOHBV-HCLYCAFXC/
+    rsync -avz -e "ssh -i /data/mengxf/Project/KML251106-HAOBOHBV-PIPELINE-DEPLOY/ec2-20251104.pem" /data/mengxf/Project/KML251128-HAOBOHBV-AHCLK3AFXC/FASTQ-HAOBO/ ubuntu@43.196.50.88:/home/ubuntu/KML/rawdata/KML251128-HAOBOHBV-AHCLK3AFXC-FASTQ/
     ```
 
   - 有密码文件传输
