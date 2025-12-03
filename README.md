@@ -85,6 +85,9 @@ Options:
 
 ## 更新
 
+- [20251201] 0.2.0
+  - 新增批次内(IntraBatch)变异出现频率, 用于评估批次内样本交叉污染
+
 - [20251114] 0.1.0
   - 修改 vcf 过滤部分  
     - `bcftools norm` + `vt decompose_blocksub` 把多等位基因 MNP 转换为 单等位基因 SNP

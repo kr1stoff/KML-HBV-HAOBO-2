@@ -103,7 +103,7 @@ rule variant_test:
     input:
         rules.vcf_filter.output,
     output:
-        "variant/{sample}.vcf_test.tsv",
+        "variant/{sample}.test.tsv",
     log:
         ".log/variant/{sample}.variant_test.log",
     benchmark:
@@ -112,3 +112,36 @@ rule variant_test:
         config["conda"]["python"]
     script:
         "../scripts/vcf_test.py"
+
+
+# Description: 生成质控信息, 目前只有批内质控
+# Date: 20251202
+rule generate_control:
+    input:
+        expand("variant/{sample}.test.tsv", sample=config["samples"]),
+    output:
+        "variant/control.csv",
+    log:
+        ".log/variant/generate_control.log",
+    benchmark:
+        ".log/variant/generate_control.bm"
+    conda:
+        config["conda"]["python"]
+    script:
+        "../scripts/generate_control.py"
+
+
+rule variant_control:
+    input:
+        rules.variant_test.output,
+        rules.generate_control.output,
+    output:
+        "variant/{sample}.control.tsv"
+    log:
+        ".log/variant/{sample}.variant_control.log"
+    benchmark:
+        ".log/variant/{sample}.variant_control.bm"
+    conda:
+        config["conda"]["python"]
+    script:
+        "../scripts/variant_control.py"

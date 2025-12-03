@@ -17,7 +17,7 @@ rule all_qc_summary:
 
 rule csvtk_csv2xlsx:
     input:
-        expand("variant/{sample}.vcf_test.tsv", sample=config["samples"]),
+        expand("variant/{sample}.control.tsv", sample=config["samples"]),
     output:
         "upload/all-vars-sheets.xlsx",
     log:

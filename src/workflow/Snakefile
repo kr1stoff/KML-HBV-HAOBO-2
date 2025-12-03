@@ -8,8 +8,8 @@ shell.prefix("set +eu;")
 rule all:
     input:
         "multiqc",
-        "qc-summary/panel-qc-summary.xlsx",
-        "variant/all-vars-summary.tsv",
+        "upload/panel-qc-summary.xlsx",
+        "upload/all-vars-summary.tsv",
 
 
 include: "rules/ref.smk"
