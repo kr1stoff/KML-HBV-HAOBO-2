@@ -8,7 +8,6 @@ CONDA_ENV_DICT = {
     'bedtools': 'basic2',
     'fastp': 'basic2',
     'freebayes': 'basic2',
-    'csvtk': 'basic',
     'bcftools': 'basic',
     'tantan': 'basic2',
     'ivar': 'basic2',

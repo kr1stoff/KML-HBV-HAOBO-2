@@ -136,9 +136,9 @@ rule variant_control:
         rules.variant_test.output,
         rules.generate_control.output,
     output:
-        "variant/{sample}.control.tsv"
+        "variant/{sample}.control.tsv",
     log:
-        ".log/variant/{sample}.variant_control.log"
+        ".log/variant/{sample}.variant_control.log",
     benchmark:
         ".log/variant/{sample}.variant_control.bm"
     conda:

@@ -4,8 +4,8 @@ DATABASE = {
 }
 
 GENOTYPE_REFERENCE = {
-    # 'A': '/data/mengxf/GitHub/KML-HBV-HAOBO-2/assets/X51970.fasta',
-    'A': '/data/mengxf/GitHub/KML-HBV-HAOBO-2/assets/pcDNA3.1-GTA-Aus.fasta',
+    'A': '/data/mengxf/GitHub/KML-HBV-HAOBO-2/assets/X51970.fasta',
+    # 'A': '/data/mengxf/GitHub/KML-HBV-HAOBO-2/assets/pcDNA3.1-GTA-Aus.fasta',
     'B': '/data/mengxf/GitHub/KML-HBV-HAOBO-2/assets/D00330.fasta',
     'C': '/data/mengxf/GitHub/KML-HBV-HAOBO-2/assets/AB033550.fasta',
     'D': '/data/mengxf/GitHub/KML-HBV-HAOBO-2/assets/U95551.fasta',

@@ -15,26 +15,24 @@ rule all_qc_summary:
         "../scripts/all_qc_summary.py"
 
 
-rule csvtk_csv2xlsx:
+rule all_vars_sheets:
     input:
         expand("variant/{sample}.control.tsv", sample=config["samples"]),
     output:
         "upload/all-vars-sheets.xlsx",
     log:
-        ".log/summary/csvtk_csv2xlsx.log",
+        ".log/summary/all_vars_csv2xlsx.log",
     benchmark:
-        ".log/summary/csvtk_csv2xlsx.bm"
+        ".log/summary/all_vars_csv2xlsx.bm"
     conda:
-        config["conda"]["csvtk"]
-    params:
-        extra="--tabs --format-numbers",
-    shell:
-        "csvtk csv2xlsx {params.extra} {input} -o {output} 2> {log}"
+        config["conda"]["python"]
+    script:
+        "../scripts/all_vars_sheets.py"
 
 
 rule all_vars_summary:
     input:
-        rules.csvtk_csv2xlsx.output,
+        rules.all_vars_sheets.output,
         config["database"]["known_sites"],
     output:
         "upload/all-vars-summary.tsv",
@@ -47,7 +45,8 @@ rule all_vars_summary:
         # [浩博过滤] 目标区域 1000 个reads
         core_depth_cutoff=1000,
         # [浩博过滤] 非目标区域 20000 个reads
-        other_depth_cutoff=20000,
+        # [20251203 FU] 统一 1000 X
+        other_depth_cutoff=1000,
     conda:
         config["conda"]["python"]
     script:

@@ -51,7 +51,7 @@ Options:
     ~/miniforge3/envs/python3.12/bin/python -m src.util.memory_stats --resdir /data/mengxf/Project/KML251030-HAOBOHBV-HWWV3AFX7/results/251031-bds-4 --outfile /data/mengxf/Project/KML251030-HAOBOHBV-HWWV3AFX7/results/251031-bds-4/memory_stats.tsv
     ```
 
-## 同步结果
+## 同步结果到共享文件夹
 
 - 分析结果
 
@@ -65,14 +65,17 @@ Options:
   rsync -auvP --delete --include 'Images/***' --include 'InterOp/***' --include 'Thumbnail_Images/***' --include 'RunInfo.xml' --include 'RunParameters.xml' --exclude '*' /data/rawdata/illumina/NEXTseq500/250827_NB501947_0947_AHWWKCAFX7/ /data/share/samba/public/bioinfo/KML250829-HBVHAOBO-HWWKCAFX7/250827_NB501947_0947_AHWWKCAFX7/
   ```
 
-- 远程同步到浩博云服务器, 使用 .pem 文件  
-  - 无密码文件传输
+## 远程同步到浩博云服务器
+
+使用 .pem 文件  
+
+- 无密码文件传输
 
     ```bash
-    rsync -avz -e "ssh -i /data/mengxf/Project/KML251106-HAOBOHBV-PIPELINE-DEPLOY/ec2-20251104.pem" /data/mengxf/Project/KML251128-HAOBOHBV-AHCLK3AFXC/FASTQ-HAOBO/ ubuntu@43.196.50.88:/home/ubuntu/KML/rawdata/KML251128-HAOBOHBV-AHCLK3AFXC-FASTQ/
+    rsync -avz -e "ssh -i /data/mengxf/Project/KML251106-HAOBOHBV-PIPELINE-DEPLOY/ec2-20251104.pem" /data/mengxf/Project/KML251203-HAOBOHBV-AHCMFLAFXC/FASTQ-HAOBO/ ubuntu@43.196.50.88:/home/ubuntu/KML/rawdata/KML251203-HAOBOHBV-AHCMFLAFXC-FASTQ
     ```
 
-  - 有密码文件传输
+- 有密码文件传输
 
     ```bash
     # 需要加压缩包密码
@@ -84,6 +87,9 @@ Options:
     ```
 
 ## 更新
+
+- [20251209] 0.2.1
+  - 解决 ruduce + pd.merge 合并变异表格时卡住的问题. 改用字典减小资源使用
 
 - [20251201] 0.2.0
   - 新增批次内(IntraBatch)变异出现频率, 用于评估批次内样本交叉污染

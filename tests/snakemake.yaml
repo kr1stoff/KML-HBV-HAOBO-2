@@ -1,7 +1,6 @@
 conda:
   bedtools: basic2
   bwa: basic
-  csvtk: basic
   fastp: basic2
   fastqc: basic
   freebayes: basic2

@@ -74,7 +74,7 @@
 
         ```bash
         mamba create -n basic -y python=3.8
-        mamba install -n basic -c bioconda -c conda-forge -y fastqc multiqc bwa samtools bedtools fastp freebayes csvtk bcftools tantan ivar
+        mamba install -n basic -c bioconda -c conda-forge -y fastqc multiqc bwa samtools bedtools fastp freebayes bcftools tantan ivar
         ```
 
     - snakemake 环境
@@ -115,7 +115,6 @@
          'bedtools': 'basic',
          'fastp': 'basic',
          'freebayes': 'basic',
-         'csvtk': 'basic',
          'bcftools': 'basic',
          'tantan': 'basic',
          'ivar': 'basic',

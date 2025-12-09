@@ -10,7 +10,6 @@ dependencies:
   - multiqc=1.24.1=pyhdfd78af_0
   - bwa=0.7.18=he4a0461_1
   - samtools=1.18=hd87286a_0
-  - csvtk=0.30.0=h9ee0642_2
   - bcftools=1.17=h3cc50cf_1
 
 prefix: "/home/mengxf/miniforge3/envs/basic"

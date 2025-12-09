@@ -27,7 +27,7 @@
     mamba install -n python3.12 -c bioconda -c conda-forge -y biopython click numpy pandas pyyaml scipy vcfpy statsmodels openpyxl
     # basic 环境
     mamba create -n basic -y python=3.8
-    mamba install -n basic -c bioconda -c conda-forge -y fastqc multiqc bwa samtools bedtools fastp freebayes csvtk bcftools tantan ivar vt
+    mamba install -n basic -c bioconda -c conda-forge -y fastqc multiqc bwa samtools bedtools fastp freebayes bcftools tantan ivar vt
     ```
 
 4. 复制流程代码库
