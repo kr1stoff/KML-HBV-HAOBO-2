@@ -16,7 +16,17 @@ rule ivar_trim:
         """
         prefix=$(dirname {output.unsorted})/$(basename {output.unsorted} .bam)
         ivar trim -i {input.bam} -b {input.bed} -p $prefix -e 2> {log}
-        samtools sort -@ {threads} -o {output.bam} {output.unsorted} 2>> {log}
+
+        # ! ivar trim 如果输入没有条目会删掉信息头输出空文件
+        # 检查unsorted文件是否有reads(除了信息头)
+        if [[ $(samtools view -c {output.unsorted} 2>/dev/null || echo 0) -gt 0 ]]; then
+            # 有reads时正常处理
+            samtools sort -@ {threads} -o {output.bam} {output.unsorted} 2>> {log}
+        else
+            # 没有reads时创建空的已排序BAM文件
+            echo "警告: {output.unsorted} 没有reads，创建空输出" >> {log}
+            samtools view -hbS {input.bam} > {output.bam} 2>> {log}
+        fi
         samtools index {output.bam} 2>> {log}
         """
 

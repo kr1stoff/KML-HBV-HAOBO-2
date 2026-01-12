@@ -67,7 +67,7 @@ Options:
 
 ## 远程同步到浩博云服务器
 
-使用 .pem 文件  
+使用 .pem 文件
 
 - 无密码文件传输
 
@@ -88,6 +88,9 @@ Options:
 
 ## 更新
 
+- [20260112] 0.2.2
+  - 修复 ivar trim 输入有信息头无条目输出无信息头空文件的 BUG
+
 - [20251209] 0.2.1
   - 解决 ruduce + pd.merge 合并变异表格时卡住的问题. 改用字典减小资源使用
 
@@ -95,12 +98,12 @@ Options:
   - 新增批次内(IntraBatch)变异出现频率, 用于评估批次内样本交叉污染
 
 - [20251114] 0.1.0
-  - 修改 vcf 过滤部分  
+  - 修改 vcf 过滤部分
     - `bcftools norm` + `vt decompose_blocksub` 把多等位基因 MNP 转换为 单等位基因 SNP
     - 重复的 SNP 合并 AO, SAF/SAR, RPL/RLR，reads 是加和关系
     - vcf filter 标签从 bcftools filter 转为自建脚本，LowComplexity 标签脚本也整合进来
   - 新增软件 vt 对应修改 singularity 中 conda 环境
-  
+
 - [20251029] 新增支持输入分型
   - 修复 target 区域错误的 BUG
   - 新增支持输入分型, 并根据分型调整参考序列
