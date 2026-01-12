@@ -6,9 +6,9 @@ import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
-sys.stderr.write(f"Input: {snakemake.input['fastp_json'], snakemake.input['cleaned_json']}\n")
+sys.stderr.write(
+    f"Input: {snakemake.input['fastp_json'], snakemake.input['cleaned_json']}\n")
 
-# def fastp_all_samples_qc(fastp_json, out_tsv):
 title = ["Sample", "RawReads", "RawBases", "CleanReads", "CleanBases", "RawQ20",
          "RawQ30", "CleanQ20", "CleanQ30", "CleanAverageLength", "GC", "DuplicationRate", "ResidualAdapterRate"]
 df = pd.DataFrame(columns=title)
