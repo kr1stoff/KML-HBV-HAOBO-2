@@ -36,7 +36,7 @@
    cp -r /mnt/GitHub/KML-HBV-HAOBO-2 /opt
    ```
 
-5. 修改流程配置文件. `/opt/KML-HBV-HAOBO-2/src/config` 目录
+5. 修改流程配置文件 `/opt/KML-HBV-HAOBO-2/src/config` 目录
 
     ```bash
     sed -i 's/data\/mengxf\/GitHub/opt/g' database.py
@@ -77,7 +77,7 @@
     ```
 
 9. 运行项目数据
-  
+
    ```bash
    singularity exec --containall --bind /data:/data kml-haobo-hbv-ubuntu22.04.sif bash -c "KML-HBV-HAOBO-2 --input-tab /data/mengxf/GitHub/KML-HBV-HAOBO-2/tests/input-1800bp.tsv --output-dir /data/mengxf/Project/KML251013-HAOBOHBV-PIPE-UPDATE/results/251023"
    ```

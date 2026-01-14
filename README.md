@@ -90,6 +90,7 @@ Options:
 
 - [20260112] 0.2.2
   - 修复 ivar trim 输入有信息头无条目输出无信息头空文件的 BUG
+  - 修复 all_vars_summary.py 当所有样本都没有变异的情况, 会导致 depth_df,freq_df 为空, 后续合并会报错
 
 - [20251209] 0.2.1
   - 解决 ruduce + pd.merge 合并变异表格时卡住的问题. 改用字典减小资源使用

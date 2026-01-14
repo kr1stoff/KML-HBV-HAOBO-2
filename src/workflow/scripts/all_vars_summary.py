@@ -1,5 +1,4 @@
 import pandas as pd
-from functools import reduce
 import sys
 sys.stderr = open(snakemake.log[0], "w")
 
@@ -19,6 +18,7 @@ known_sites = pd.read_csv(known_sites_file, dtype={'Chrom': str, 'Pos': str, 'Re
 # 0 depth,  1 freq
 vardicts = [{}, {}]
 alldf = pd.ExcelFile(rawtab)
+
 for sn in alldf.sheet_names:
     df = pd.read_excel(rawtab, sheet_name=sn, usecols=['Chrom', 'Pos', 'Ref', 'Alt', 'AltDepth', 'AltFreq'],
                        dtype={'Chrom': str, 'Pos': str, 'Ref': str, 'Alt': str})
@@ -31,22 +31,27 @@ for sn in alldf.sheet_names:
         vardicts[0].setdefault((it.Chrom, it.Pos, it.Ref, it.Alt), {})[sn] = it.AltDepth
         vardicts[1].setdefault((it.Chrom, it.Pos, it.Ref, it.Alt), {})[sn] = it.AltFreq
 
-# 转成 dataframe, 添加样本信息
-depth_df = pd.DataFrame(vardicts[0]).T.astype('Int64')
-depth_df.columns = [f'{col}-Depth' for col in depth_df.columns]
-freq_df = pd.DataFrame(vardicts[1]).T
-freq_df.columns = [f'{col}-Freq' for col in freq_df.columns]
-# 合并深度和频率表
-sum_df = pd.concat([depth_df, freq_df], axis=1)
-# 排序列名, 加入变异位点信息
-sum_df = sum_df[sorted(sum_df.columns)].reset_index()
-sum_df.columns = ['Chrom', 'Pos', 'Ref', 'Alt'] + list(sum_df.columns[4:])
-# 添加 known_sites
-outdf = pd.merge(known_sites, sum_df, on=['Chrom', 'Pos', 'Ref', 'Alt'], how='outer')
-outdf.drop_duplicates(inplace=True)
-# Pos 改回 int, 并排序
-outdf['Pos'] = outdf['Pos'].astype(int)
-outdf.sort_values(by=['Chrom', 'Pos'], inplace=True)
+# ! [20260114] 如果所有样本都没有变异的情况, 会导致 depth_df,freq_df 为空, 后续合并会报错
+if vardicts == [{}, {}]:
+    outdf = pd.DataFrame(columns=['Chrom', 'Pos', 'Ref', 'Alt', 'Target'])
+else:
+    # 转成 dataframe, 添加样本信息
+    depth_df = pd.DataFrame(vardicts[0]).T.astype('Int64')
+    depth_df.columns = [f'{col}-Depth' for col in depth_df.columns]
+    freq_df = pd.DataFrame(vardicts[1]).T
+    freq_df.columns = [f'{col}-Freq' for col in freq_df.columns]
+    # 合并深度和频率表
+    sum_df = pd.concat([depth_df, freq_df], axis=1)
+    # 排序列名, 加入变异位点信息
+    sum_df = sum_df[sorted(sum_df.columns)].reset_index()
+    sum_df.columns = ['Chrom', 'Pos', 'Ref', 'Alt'] + list(sum_df.columns[4:])
+    # 添加 known_sites
+    outdf = pd.merge(known_sites, sum_df, on=['Chrom', 'Pos', 'Ref', 'Alt'], how='outer')
+    outdf.drop_duplicates(inplace=True)
+    # Pos 改回 int, 并排序
+    outdf['Pos'] = outdf['Pos'].astype(int)
+    outdf.sort_values(by=['Chrom', 'Pos'], inplace=True)
+
 # 输出
 outdf.to_csv(outtab, index=False, sep='\t')
 outdf.to_excel(outexcel, index=False)
