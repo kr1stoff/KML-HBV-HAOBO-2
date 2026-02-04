@@ -33,6 +33,10 @@ def main(input_tab, output_dir, threads, freebayes_para_num, genotype):
     # fastq
     prepare_fastq_by_samptab(args)
     # snakemake
-    run_snakemake(args)
+    smk_stderr = run_snakemake(args)
 
-    logging.info("KML 浩博 HBV 基因变异分析流程完成")
+    if 'Complete log' in smk_stderr or 'Nothing to be done' in smk_stderr:
+        # run_snakemake 没报错不代表分析完成
+        logging.info(f'KML 浩博 HBV 基因变异分析流程完成!')
+    else:
+        raise RuntimeError('Snakemake 运行出错!')

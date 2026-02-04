@@ -30,7 +30,7 @@ def create_snakemake_configfile(args: Argument) -> str:
     return configfile
 
 
-def run_snakemake(args: Argument) -> None:
+def run_snakemake(args: Argument) -> str:
     """运行 snakemake 工作流"""
     logging.info('运行 snakemake')
     # 创建 snakemake 配置文件
@@ -44,3 +44,4 @@ def run_snakemake(args: Argument) -> None:
     # 输出出来这段日志
     with open(logfile, 'w') as f:
         f.write(f'[STDOUT]\n{proc.stdout}\n[STDERR]\n{proc.stderr}')
+    return proc.stderr
