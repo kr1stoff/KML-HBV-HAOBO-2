@@ -65,27 +65,6 @@ Options:
   rsync -auvP --delete --include 'Images/***' --include 'InterOp/***' --include 'Thumbnail_Images/***' --include 'RunInfo.xml' --include 'RunParameters.xml' --exclude '*' /data/rawdata/illumina/NEXTseq500/250827_NB501947_0947_AHWWKCAFX7/ /data/share/samba/public/bioinfo/KML250829-HBVHAOBO-HWWKCAFX7/250827_NB501947_0947_AHWWKCAFX7/
   ```
 
-## 远程同步到浩博云服务器
-
-使用 .pem 文件
-
-- 无密码文件传输
-
-    ```bash
-    rsync -avz -e "ssh -i /data/mengxf/Project/KML251106-HAOBOHBV-PIPELINE-DEPLOY/ec2-20251104.pem" /data/mengxf/Project/KML251203-HAOBOHBV-AHCMFLAFXC/FASTQ-HAOBO/ ubuntu@43.196.50.88:/home/ubuntu/KML/rawdata/KML251203-HAOBOHBV-AHCMFLAFXC-FASTQ
-    ```
-
-- 有密码文件传输
-
-    ```bash
-    # 需要加压缩包密码
-    tar cvf - /data/mengxf/Project/KML251126-HAOBOHBV-HCLYCAFXC/FASTQ/ | gpg --batch --passphrase "123456" --pinentry-mode loopback -c --cipher-algo AES256 -o /data/mengxf/Project/KML251126-HAOBOHBV-HCLYCAFXC/KML251126-HAOBOHBV-HCLYCAFXC.tar.gpg
-    # 上传压缩包
-    scp -i /data/mengxf/Project/KML251106-HAOBOHBV-PIPELINE-DEPLOY/ec2-20251104.pem /data/mengxf/Project/KML251126-HAOBOHBV-HCLYCAFXC/KML251126-HAOBOHBV-HCLYCAFXC.tar.gpg ubuntu@52.80.144.175:/home/ubuntu/KML/rawdata/
-    # 解压缩
-    gpg --batch --passphrase "123456" --pinentry-mode loopback -d /home/ubuntu/KML/rawdata/KML251126-HAOBOHBV-HCLYCAFXC.tar.gpg | tar -xzvf -
-    ```
-
 ## 更新
 
 - [20260112] 0.2.2
