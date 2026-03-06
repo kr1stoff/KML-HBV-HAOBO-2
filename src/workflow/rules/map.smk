@@ -34,7 +34,7 @@ rule samtools_index:
     conda:
         config["conda"]["samtools"]
     shell:
-        "samtools index {input} {output} 2> {log}"
+        "samtools index {input} 2> {log}"
 
 
 rule samtools_stats:
