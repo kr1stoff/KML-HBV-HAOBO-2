@@ -4,7 +4,7 @@ rule ivar_trim:
         bed=rules.make_primer_bed.output.bed,
     output:
         unsorted=temp("trim-primer/{sample}.trimmed.unsorted.bam"),
-        bam="trim-primer/{sample}.trimmed.bam",
+        bam=temp("trim-primer/{sample}.trimmed.bam"),
     log:
         ".log/trim_primer/{sample}.ivar_trim.log",
     benchmark:

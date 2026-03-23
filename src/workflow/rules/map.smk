@@ -4,7 +4,7 @@ rule bwa_mem:
         ref=rules.copy_ref.output,
         idx=rules.bwa_index.output,
     output:
-        "align/{sample}.bam",
+        temp("align/{sample}.bam"),
     benchmark:
         ".log/align/{sample}.bwa_mem.bm"
     log:

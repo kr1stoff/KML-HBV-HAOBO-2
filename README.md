@@ -8,7 +8,7 @@
   ~/miniforge3/envs/python3.12/bin/python -m src.kml_hbv_haobo_2 --input-tab /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/work/250829-input/input.hbv.tsv --output-dir /data/mengxf/Project/KML250829-HBVHAOBO-HWWKCAFX7/results/250829
   ```
 
-- snakemake 运行
+- Snakemake 运行
 
   ```bash
   snakemake -c 32 --use-conda -s /data/mengxf/GitHub/KML-HBV-HAOBO-2/src/workflow/Snakefile --configfile .temp/snakemake.yaml --scheduler greedy
